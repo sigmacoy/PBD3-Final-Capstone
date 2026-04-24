@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#000000">
+
+    <LinearLayout
+        android:id="@+id/cardYesNo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/card_outline"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Yes or No" android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="e.g. Did you wake up early today? Did you exercise? Did you play chess?" android:textColor="#FFFFFF" android:layout_marginTop="8dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/cardMeasurable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/card_outline"
+        android:clickable="true"
+        android:focusable="true">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Measurable" android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="e.g. How many miles did you run today? How many pages did you read?" android:textColor="#FFFFFF" android:layout_marginTop="8dp"/>
+    </LinearLayout>
+</LinearLayout>
