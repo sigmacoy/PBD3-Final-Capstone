@@ -14,6 +14,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.view.Gravity
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.content.IntentFilter
 import com.example.pbd3_final_capstone.data.RoutineRepository
 import com.example.pbd3_final_capstone.widget.CheckmarkWidget
@@ -21,6 +22,7 @@ import com.example.pbd3_final_capstone.utils.ReminderScheduler
 import java.util.Calendar
 import java.text.SimpleDateFormat
 import java.util.Locale
+import androidx.core.content.ContextCompat
 
 class HomeActivity : AppCompatActivity(), HomeContract.View {
 
@@ -67,13 +69,13 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
 
     override fun onResume() {
         super.onResume()
-        // Reload in case widget toggled while app was backgrounded
         presenter.loadRoutines()
-        // Register live receiver for instant widget -> home sync
-        registerReceiver(
+
+        ContextCompat.registerReceiver(
+            this,
             widgetRefreshReceiver,
             IntentFilter(CheckmarkWidget.ACTION_HOME_REFRESH),
-            Context.RECEIVER_NOT_EXPORTED
+            ContextCompat.RECEIVER_NOT_EXPORTED
         )
     }
 
@@ -303,6 +305,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                                 if ((v.toIntOrNull() ?: 0) > 0) resolvedColor else Color.DKGRAY
                             )
                             RoutineRepository.save(this@HomeActivity)
+                            updateAllWidgets()
                         }
                     })
                     row.addView(input)
@@ -328,6 +331,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                     checkBox.setOnCheckedChangeListener { _, isChecked ->
                         routine.checkStates[idx] = isChecked
                         RoutineRepository.save(this@HomeActivity)
+                        updateAllWidgets()
                     }
                     container.addView(checkBox)
                     row.addView(container)
@@ -357,4 +361,28 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             }
         }
     }
+
+    private fun updateAllWidgets() {
+        val mgr = android.appwidget.AppWidgetManager.getInstance(this)
+
+        // Update Checkmark Widgets
+        val checkmarkIds = mgr.getAppWidgetIds(android.content.ComponentName(this, CheckmarkWidget::class.java))
+        if (checkmarkIds.isNotEmpty()) {
+            sendBroadcast(Intent(this, CheckmarkWidget::class.java).apply {
+                action = android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_IDS, checkmarkIds)
+            })
+        }
+
+        // Update History Widgets
+        val historyIds = mgr.getAppWidgetIds(android.content.ComponentName(this, com.example.pbd3_final_capstone.widget.HistoryWidget::class.java))
+        if (historyIds.isNotEmpty()) {
+            sendBroadcast(Intent(this, com.example.pbd3_final_capstone.widget.HistoryWidget::class.java).apply {
+                action = android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_IDS, historyIds)
+            })
+        }
+    }
+
+
 }
