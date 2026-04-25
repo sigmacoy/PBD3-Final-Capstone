@@ -22,7 +22,7 @@ class HistoryWidget : AppWidgetProvider() {
     companion object {
         private val colorMap = mapOf(
             "red" to "#F44336", "orange" to "#FF9800", "yellow" to "#FFEB3B",
-            "green" to "#4CAF50", "blue" to "#2196F3", "purple" to "#9C27B0", "pink" to "#E91E63"
+            "green" to "#4CAF50", "blue" to "#2196F3", "purple" to "#9C27B0"
         )
 
         fun updateWidget(context: Context, mgr: AppWidgetManager, appWidgetId: Int) {

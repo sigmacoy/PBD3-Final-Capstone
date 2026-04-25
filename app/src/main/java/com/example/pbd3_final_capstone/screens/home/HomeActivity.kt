@@ -42,7 +42,6 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         "green"  to "#4CAF50",
         "blue"   to "#2196F3",
         "purple" to "#9C27B0",
-        "pink"   to "#E91E63"
     )
 
     private fun resolveColor(colorStr: String): Int {
