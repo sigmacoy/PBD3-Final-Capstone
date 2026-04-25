@@ -169,7 +169,13 @@ class HistoryWidget : AppWidgetProvider() {
         }
     }
 
+//    override fun onUpdate(context: Context, mgr: AppWidgetManager, ids: IntArray) {
+//        ids.forEach { updateWidget(context, mgr, it) }
+//    }
+
     override fun onUpdate(context: Context, mgr: AppWidgetManager, ids: IntArray) {
+        // Must load the fresh database before drawing!
+        RoutineRepository.load(context)
         ids.forEach { updateWidget(context, mgr, it) }
     }
 

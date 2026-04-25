@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- res/xml/appwidget_history_info.xml -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="270dp"
-    android:minHeight="180dp"
-    android:targetCellWidth="3"
+    android:minWidth="180dp"
+    android:minHeight="110dp"
+    android:targetCellWidth="4"
     android:targetCellHeight="2"
+
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_history"
-    android:configure="com.example.pbd3_final_capstone.widget.HistoryWidgetConfigActivity"
+    android:resizeMode="horizontal"
     android:widgetCategory="home_screen"
-    android:description="@string/app_name" />
+    android:configure="com.example.pbd3_final_capstone.widget.HistoryWidgetConfigActivity"
+    />
+
+<!--    android:maxResizeWidth="180dp"-->
+<!--    android:maxResizeHeight="110dp"-->

@@ -132,19 +132,51 @@ class CheckmarkWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
         Log.d("WIDGET_DEBUG", "onReceive: ${intent.action}")
 
+//        if (intent.action == ACTION_TOGGLE) {
+//            val routineName = intent.getStringExtra(EXTRA_ROUTINE_NAME) ?: return
+//
+//            RoutineRepository.load(context)
+//            val routine = RoutineRepository.getByName(routineName) ?: return
+//
+//            routine.checkStates[0] = !routine.checkStates[0]
+//            RoutineRepository.save(context)
+//
+//            val mgr = AppWidgetManager.getInstance(context)
+//            val ids = mgr.getAppWidgetIds(ComponentName(context, CheckmarkWidget::class.java))
+//            ids.forEach { id -> updateWidget(context, mgr, id) }
+//
+//            context.sendBroadcast(Intent(ACTION_HOME_REFRESH).apply {
+//                setPackage(context.packageName)
+//            })
+//        }
+
         if (intent.action == ACTION_TOGGLE) {
             val routineName = intent.getStringExtra(EXTRA_ROUTINE_NAME) ?: return
 
             RoutineRepository.load(context)
             val routine = RoutineRepository.getByName(routineName) ?: return
 
+            // Toggle and Save
             routine.checkStates[0] = !routine.checkStates[0]
             RoutineRepository.save(context)
 
             val mgr = AppWidgetManager.getInstance(context)
-            val ids = mgr.getAppWidgetIds(ComponentName(context, CheckmarkWidget::class.java))
-            ids.forEach { id -> updateWidget(context, mgr, id) }
 
+            // 1. Refresh all Checkmark Widgets
+            val checkmarkIds = mgr.getAppWidgetIds(ComponentName(context, CheckmarkWidget::class.java))
+            checkmarkIds.forEach { id -> updateWidget(context, mgr, id) }
+
+            // 2. ⚠️ THE FIX: Broadcast a refresh command to all History Widgets
+            val historyIds = mgr.getAppWidgetIds(ComponentName(context, HistoryWidget::class.java))
+            if (historyIds.isNotEmpty()) {
+                val historyUpdateIntent = Intent(context, HistoryWidget::class.java).apply {
+                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, historyIds)
+                }
+                context.sendBroadcast(historyUpdateIntent)
+            }
+
+            // 3. Refresh Home Screen Activity
             context.sendBroadcast(Intent(ACTION_HOME_REFRESH).apply {
                 setPackage(context.packageName)
             })
