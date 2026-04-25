@@ -30,8 +30,8 @@ class HomePresenter(
 
         if (byName) {
             isSortedByName = !isSortedByName
-            if (isSortedByName) InMemoryDB.routines.sortBy { it.name }
-            else                InMemoryDB.routines.sortByDescending { it.name }
+            if (isSortedByName) InMemoryDB.routines.sortBy { it.name.lowercase() }
+            else                InMemoryDB.routines.sortByDescending { it.name.lowercase() }
         } else {
             isSortedByColor = !isSortedByColor
             if (isSortedByColor) InMemoryDB.routines.sortBy { it.color }

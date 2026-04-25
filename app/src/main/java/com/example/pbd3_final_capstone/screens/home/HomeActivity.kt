@@ -107,9 +107,11 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
 
         val inputName = EditText(this).apply {
             hint = if (isMeasurable) "Name (e.g. Water Intake)" else "Name (e.g. Exercise)"
+            filters = arrayOf(android.text.InputFilter.LengthFilter(28)) // ⚠️ ADD THIS LINE
         }
         val inputQuestion = EditText(this).apply {
             hint = if (isMeasurable) "Question (e.g. How many glasses?)" else "Question (e.g. Did you exercise?)"
+            filters = arrayOf(android.text.InputFilter.LengthFilter(28)) // Added character limit
         }
         layout.addView(inputName)
         layout.addView(inputQuestion)
@@ -267,15 +269,18 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             val resolvedColor = resolveColor(routine.color)
             val row = TableRow(this)
 
-            row.addView(TextView(this).apply {
+            val nameTextView = TextView(this).apply {
                 text = "${routine.name}\n${if (routine.isMeasurable) routine.unit else ""}"
                 setTextColor(resolvedColor)
-                setPadding(16, 35, 16, 0)
+                setPadding(16, 25, 16, 0)
                 gravity = Gravity.CENTER_VERTICAL
                 layoutParams = TableRow.LayoutParams(nameWidth, cellSize).apply {
                     gravity = Gravity.CENTER_VERTICAL
                 }
-            })
+            }
+
+            nameTextView.setOnClickListener { showRoutineDetailsDialog(routine) }
+            row.addView(nameTextView)
 
             for (i in 0..3) {
                 if (routine.isMeasurable) {
@@ -380,6 +385,60 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                 action = android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE
                 putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_IDS, historyIds)
             })
+        }
+    }
+
+    private fun showRoutineDetailsDialog(routine: Routine) {
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(60, 40, 60, 20)
+        }
+
+        val detailsText = """
+            Name: ${routine.name}
+            Type: ${if (routine.isMeasurable) "Measurable" else "Yes / No"}
+            Question: ${if (routine.question.isNotEmpty()) routine.question else "N/A"}
+            ${if (routine.isMeasurable) "Target: ${routine.target} ${routine.unit}\n" else ""}Color: ${routine.color.replaceFirstChar { it.uppercase() }}
+            Reminder: ${String.format(Locale.getDefault(), "%02d:%02d", routine.reminderHour, routine.reminderMinute)}
+        """.trimIndent()
+
+        layout.addView(TextView(this).apply {
+            text = detailsText
+            textSize = 16f
+            setTextColor(Color.DKGRAY)
+            setPadding(0, 0, 0, 60)
+            setLineSpacing(0f, 1.3f)
+        })
+
+        val deleteButton = Button(this).apply {
+            text = "Delete Routine"
+            setTextColor(Color.WHITE)
+            setBackgroundColor(Color.parseColor("#F44336")) // Red
+        }
+        layout.addView(deleteButton)
+
+        val detailsDialog = AlertDialog.Builder(this)
+            .setTitle("Routine Details")
+            .setView(layout)
+            .setPositiveButton("Close", null)
+            .show()
+
+        deleteButton.setOnClickListener {
+            detailsDialog.dismiss()
+            AlertDialog.Builder(this)
+                .setTitle("Confirm Deletion")
+                .setMessage("Are you sure to delete '${routine.name}' routine?")
+                .setPositiveButton("Delete") { _, _ ->
+
+                    // ⚠️ FIX: Delete by matching the name instead of the object reference
+                    com.example.pbd3_final_capstone.screens.home.InMemoryDB.routines.removeAll { it.name == routine.name }
+
+                    RoutineRepository.save(this)
+                    presenter.loadRoutines()
+                    updateAllWidgets()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 }
