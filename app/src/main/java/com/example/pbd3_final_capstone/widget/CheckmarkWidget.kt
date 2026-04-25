@@ -136,7 +136,7 @@ class CheckmarkWidget : AppWidgetProvider() {
             val routineName = intent.getStringExtra(EXTRA_ROUTINE_NAME) ?: return
 
             // Load data before modifying
-            RoutineRepository.load(context)
+//            RoutineRepository.load(context)
 
             val routine = RoutineRepository.getByName(routineName) ?: return
 

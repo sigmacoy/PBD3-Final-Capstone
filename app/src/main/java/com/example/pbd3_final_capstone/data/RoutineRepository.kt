@@ -32,7 +32,8 @@ object RoutineRepository {
                 put("reminderMinute",r.reminderMinute)
 
                 // checkStates as "0,1,0,0"
-                put("checkStates", r.checkStates.joinToString(","))
+//                put("checkStates", r.checkStates.joinToString(","))
+                put("checkStates", r.checkStates.joinToString(",") { if (it) "1" else "0" })
                 // inputValues as "3,,5,"
                 put("inputValues", r.inputValues.joinToString(","))
             }
@@ -50,7 +51,11 @@ object RoutineRepository {
             val obj = arr.getJSONObject(i)
 
             val checkRaw = obj.optString("checkStates", "0,0,0,0").split(",")
-            val checks   = BooleanArray(4) { idx -> checkRaw.getOrNull(idx) == "1" }
+//            val checks   = BooleanArray(4) { idx -> checkRaw.getOrNull(idx) == "1" }
+            val checks = BooleanArray(4) { idx ->
+                val value = checkRaw.getOrNull(idx)
+                value == "1" || value == "true"
+            }
 
             val inputRaw = obj.optString("inputValues", ",,,").split(",")
             val inputs   = Array(4) { idx -> inputRaw.getOrElse(idx) { "" } }
