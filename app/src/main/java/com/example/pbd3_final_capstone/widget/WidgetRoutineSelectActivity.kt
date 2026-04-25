@@ -4,6 +4,8 @@ import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.pbd3_final_capstone.data.RoutineRepository
@@ -17,7 +19,7 @@ import com.example.pbd3_final_capstone.screens.home.InMemoryDB
  *   EXTRA_WIDGET_TYPE  = "checkmark" | "history"
  *   AppWidgetManager.EXTRA_APPWIDGET_ID
  */
-class WidgetRoutineSelectActivity : AppCompatActivity() {
+    class WidgetRoutineSelectActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_WIDGET_TYPE = "widget_type"
@@ -48,7 +50,11 @@ class WidgetRoutineSelectActivity : AppCompatActivity() {
         // Build simple list UI
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.parseColor("#1A1A1A"))
+            setBackgroundColor(Color.BLACK)
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
             setPadding(32, 48, 32, 32)
         }
 
@@ -62,13 +68,13 @@ class WidgetRoutineSelectActivity : AppCompatActivity() {
 
         val colorMap = mapOf(
             "red" to "#F44336", "orange" to "#FF9800", "yellow" to "#FFEB3B",
-            "green" to "#4CAF50", "blue" to "#2196F3", "purple" to "#9C27B0", "pink" to "#E91E63"
+            "green" to "#4CAF50", "blue" to "#2196F3", "purple" to "#9C27B0"
         )
 
         routines.forEach { routine ->
             val row = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
-                setPadding(16, 20, 16, 20)
+                setPadding(16, 40, 16, 40) // Increased padding for better touch target
             }
 
             // Color dot
@@ -89,6 +95,16 @@ class WidgetRoutineSelectActivity : AppCompatActivity() {
             row.addView(dot)
             row.addView(nameView)
             root.addView(row)
+
+            // ADD GREY SEPARATOR
+            val separator = View(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    (1 * resources.displayMetrics.density).toInt() // 1dp height
+                )
+                setBackgroundColor(Color.parseColor("#333333")) // Dark grey
+            }
+            root.addView(separator)
 
             row.setOnClickListener {
                 // Check duplicate checkmark widget
@@ -127,6 +143,9 @@ class WidgetRoutineSelectActivity : AppCompatActivity() {
             }
         }
 
-        setContentView(ScrollView(this).apply { addView(root) })
+        setContentView(ScrollView(this).apply {
+            setBackgroundColor(Color.BLACK)
+            addView(root)
+        })
     }
 }

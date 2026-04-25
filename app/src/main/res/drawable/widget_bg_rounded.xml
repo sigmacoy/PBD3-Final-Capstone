@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- res/drawable/widget_bg_rounded.xml -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="#2A2A2A" />
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#1e1f1e" />
     <corners android:radius="16dp" />
 </shape>
