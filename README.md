@@ -1,3 +1,3 @@
 # MyRoutine
 
-## A Kotlin-based mobile application designed for habit tracking and daily productivity. 
+## Kotlin mobile app for daily habit tracking with a home screen widget for visibility and reminders.
