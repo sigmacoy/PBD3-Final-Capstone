@@ -44,7 +44,9 @@ object RoutineRepository {
 
     // ── Load ────────────────────────────────────────────────────────────────
     fun load(context: Context) {
-        InMemoryDB.routines.clear()
+//        InMemoryDB.routines.clear()
+        if (InMemoryDB.routines.isNotEmpty()) return
+
         val json = prefs(context).getString(KEY_ROUTINES, "[]") ?: "[]"
         val arr  = JSONArray(json)
         for (i in 0 until arr.length()) {
@@ -86,4 +88,9 @@ object RoutineRepository {
 
     private fun prefs(context: Context): SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    fun forceLoad(context: Context) {
+        InMemoryDB.routines.clear()   // only here
+        load(context)
+    }
 }

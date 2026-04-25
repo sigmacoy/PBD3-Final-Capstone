@@ -12,6 +12,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.Log
+import android.view.View
 import android.widget.RemoteViews
 import com.example.pbd3_final_capstone.R
 import com.example.pbd3_final_capstone.data.RoutineRepository
@@ -43,7 +44,6 @@ class CheckmarkWidget : AppWidgetProvider() {
             val prefs = context.getSharedPreferences("widget_bindings", Context.MODE_PRIVATE)
             val binding = prefs.getString(appWidgetId.toString(), null)
 
-            // DIAGNOSTIC 1: Did the binding fail?
             if (binding == null || !binding.startsWith("checkmark:")) {
                 views.setTextViewText(R.id.widget_checkmark_label, "Unbound")
                 mgr.updateAppWidget(appWidgetId, views)
@@ -54,58 +54,66 @@ class CheckmarkWidget : AppWidgetProvider() {
             RoutineRepository.load(context)
             val routine = RoutineRepository.getByName(routineName)
 
-            // DIAGNOSTIC 2: Did the database lose your routine?
             if (routine == null) {
                 views.setTextViewText(R.id.widget_checkmark_label, "DB Error")
                 mgr.updateAppWidget(appWidgetId, views)
                 return
             }
 
-            val checked = routine.checkStates[0]
             val resolvedColor = try {
                 Color.parseColor(colorMap[routine.color] ?: "#2196F3")
             } catch (e: Exception) { Color.BLUE }
 
-            // UI Setup
-            views.setInt(
-                R.id.widget_checkmark_root,
-                "setBackgroundColor",
-                if (checked) resolvedColor else Color.parseColor("#2A2A2A")
-            )
-            views.setImageViewResource(R.id.widget_checkmark_icon, 0)
-            views.setImageViewResource(
-                R.id.widget_checkmark_icon,
-                if (checked) R.drawable.widget_icon_check else R.drawable.widget_icon_close
-            )
-            views.setInt(R.id.widget_checkmark_icon, "setColorFilter", Color.WHITE)
+            if (routine.isMeasurable) {
+                val currentCount = routine.inputValues[0].toIntOrNull() ?: 0
+                val target = routine.target.toIntOrNull() ?: 1
+                val achieved = currentCount >= target
 
-            val ringColor = if (checked) Color.WHITE else Color.parseColor("#888888")
-            views.setImageViewBitmap(
-                R.id.widget_checkmark_circle,
-                drawRingBitmap(240, 18f, ringColor)
-            )
-            views.setTextViewText(R.id.widget_checkmark_label, routine.name)
+                // UI for Measurable
+                views.setInt(R.id.widget_checkmark_root, "setBackgroundColor", if (achieved) resolvedColor else Color.parseColor("#2A2A2A"))
+                views.setViewVisibility(R.id.widget_checkmark_icon, View.GONE)
+                views.setViewVisibility(R.id.widget_checkmark_count, View.VISIBLE)
+                views.setTextViewText(R.id.widget_checkmark_count, currentCount.toString())
+                views.setImageViewBitmap(R.id.widget_checkmark_circle, drawRingBitmap(240, 18f, if (achieved) Color.WHITE else Color.parseColor("#888888")))
 
-            // ⚠️ FIX: The most rock-solid explicit Intent standard for Android 14+
-            val toggleIntent = Intent(context, CheckmarkWidget::class.java).apply {
-                action = ACTION_TOGGLE
-                putExtra(EXTRA_ROUTINE_NAME, routineName)
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                // INTENT: Open App to Home Menu directly
+                val launchIntent = Intent(context, com.example.pbd3_final_capstone.screens.home.HomeActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    putExtra("FOCUS_ROUTINE", routine.name)
+                    data = android.net.Uri.parse("focus://$appWidgetId")
+                }
+                val pi = PendingIntent.getActivity(context, appWidgetId, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+                views.setOnClickPendingIntent(R.id.widget_checkmark_root, pi)
+                views.setOnClickPendingIntent(R.id.widget_checkmark_circle, pi)
+                views.setOnClickPendingIntent(R.id.widget_checkmark_count, pi)
+                views.setOnClickPendingIntent(R.id.widget_checkmark_label, pi)
+
+            } else {
+                // UI for Yes/No
+                val checked = routine.checkStates[0]
+                views.setInt(R.id.widget_checkmark_root, "setBackgroundColor", if (checked) resolvedColor else Color.parseColor("#2A2A2A"))
+                views.setViewVisibility(R.id.widget_checkmark_icon, View.VISIBLE)
+                views.setViewVisibility(R.id.widget_checkmark_count, View.GONE)
+                views.setImageViewResource(R.id.widget_checkmark_icon, if (checked) R.drawable.widget_icon_check else R.drawable.widget_icon_close)
+                views.setInt(R.id.widget_checkmark_icon, "setColorFilter", Color.WHITE)
+                views.setImageViewBitmap(R.id.widget_checkmark_circle, drawRingBitmap(240, 18f, if (checked) Color.WHITE else Color.parseColor("#888888")))
+
+                // INTENT: Background Broadcast
+                val toggleIntent = Intent(context, CheckmarkWidget::class.java).apply {
+                    action = ACTION_TOGGLE
+                    putExtra(EXTRA_ROUTINE_NAME, routineName)
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                }
+                val pi = PendingIntent.getBroadcast(context, appWidgetId, toggleIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+                views.setOnClickPendingIntent(R.id.widget_checkmark_root, pi)
+                views.setOnClickPendingIntent(R.id.widget_checkmark_circle, pi)
+                views.setOnClickPendingIntent(R.id.widget_checkmark_icon, pi)
+                views.setOnClickPendingIntent(R.id.widget_checkmark_label, pi)
             }
 
-            val pi = PendingIntent.getBroadcast(
-                context,
-                appWidgetId,
-                toggleIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            // ⚠️ FIX: Bind the click to EVERY single view to stop Android Launcher bleed-through
-            views.setOnClickPendingIntent(R.id.widget_checkmark_root, pi)
-            views.setOnClickPendingIntent(R.id.widget_checkmark_circle, pi)
-            views.setOnClickPendingIntent(R.id.widget_checkmark_icon, pi)
-            views.setOnClickPendingIntent(R.id.widget_checkmark_label, pi)
-
+            views.setTextViewText(R.id.widget_checkmark_label, routine.name)
             mgr.updateAppWidget(appWidgetId, views)
             Log.d("WIDGET_DEBUG", "Widget UI applied successfully")
         }

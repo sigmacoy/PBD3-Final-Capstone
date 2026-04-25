@@ -18,6 +18,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import com.example.pbd3_final_capstone.data.RoutineRepository
 import com.example.pbd3_final_capstone.widget.CheckmarkWidget
+import com.example.pbd3_final_capstone.widget.HistoryWidget
 import com.example.pbd3_final_capstone.utils.ReminderScheduler
 import java.util.Calendar
 import java.text.SimpleDateFormat
@@ -26,7 +27,6 @@ import androidx.core.content.ContextCompat
 
 class HomeActivity : AppCompatActivity(), HomeContract.View {
 
-    // Receives broadcast from CheckmarkWidget tap → instant table refresh
     private val widgetRefreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: android.content.Context?, intent: android.content.Intent?) {
             presenter.loadRoutines()
@@ -56,7 +56,6 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         ReminderScheduler.createChannel(this)
         ReminderScheduler.scheduleMidnightReset(this)
 
-        // Use context-aware presenter
         presenter = HomePresenter(this, this)
         tableHabits = findViewById(R.id.tableRoutines)
 
@@ -69,7 +68,6 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
     override fun onResume() {
         super.onResume()
         presenter.loadRoutines()
-
         ContextCompat.registerReceiver(
             this,
             widgetRefreshReceiver,
@@ -87,14 +85,12 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
     override fun showTypeDialog() {
         val dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.dialog_add_type, null)
-
         view.findViewById<View>(R.id.cardYesNo).setOnClickListener {
             dialog.dismiss(); showCreateDialog(false)
         }
         view.findViewById<View>(R.id.cardMeasurable).setOnClickListener {
             dialog.dismiss(); showCreateDialog(true)
         }
-
         dialog.setContentView(view)
         dialog.show()
     }
@@ -107,11 +103,11 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
 
         val inputName = EditText(this).apply {
             hint = if (isMeasurable) "Name (e.g. Water Intake)" else "Name (e.g. Exercise)"
-            filters = arrayOf(android.text.InputFilter.LengthFilter(28)) // ⚠️ ADD THIS LINE
+            filters = arrayOf(android.text.InputFilter.LengthFilter(28))
         }
         val inputQuestion = EditText(this).apply {
             hint = if (isMeasurable) "Question (e.g. How many glasses?)" else "Question (e.g. Did you exercise?)"
-            filters = arrayOf(android.text.InputFilter.LengthFilter(28)) // Added character limit
+            filters = arrayOf(android.text.InputFilter.LengthFilter(28))
         }
         layout.addView(inputName)
         layout.addView(inputQuestion)
@@ -125,7 +121,6 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             layout.addView(inputTarget)
         }
 
-        // ── Color picker ─────────────────────────────────────────────────────
         layout.addView(TextView(this).apply {
             text = "Pick a color"
             setTextColor(Color.DKGRAY)
@@ -162,7 +157,6 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         circleViews["red"]?.background = buildCircleDrawable(colorMap["red"]!!, isSelected = true)
         layout.addView(colorRow)
 
-        // ── Reminder time picker ─────────────────────────────────────────────
         layout.addView(TextView(this).apply {
             text = "Daily reminder time"
             setTextColor(Color.DKGRAY)
@@ -191,9 +185,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                     reminderMinute = timePicker.minute
                 )
                 presenter.addRoutine(routine)
-                // ⚠️ ADD THIS EXACT LINE:
-                // This permanently saves the routine so the widget can actually find it!
-                com.example.pbd3_final_capstone.data.RoutineRepository.save(this)
+                RoutineRepository.save(this)
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -202,11 +194,9 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
     override fun showSortDialog() {
         val sortButton = findViewById<View>(R.id.btnSort)
         val popup = PopupMenu(this, sortButton)
-
         popup.menu.add(0, 0, 0, "Sort").isEnabled = false
         popup.menu.add(0, 1, 1, "By name")
         popup.menu.add(0, 2, 2, "By color")
-
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 1 -> presenter.sortRoutines(byName = true)
@@ -242,7 +232,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         val cellSize  = (50  * dp).toInt()
         val nameWidth = (120 * dp).toInt()
 
-        // ── Header row ───────────────────────────────────────────────────────
+        // Header row
         val headerRow = TableRow(this)
         headerRow.addView(TextView(this).apply {
             layoutParams = TableRow.LayoutParams(nameWidth, cellSize)
@@ -264,7 +254,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         }
         tableRoutines.addView(headerRow)
 
-        // ── Data rows ────────────────────────────────────────────────────────
+        // Data rows
         routines.forEach { routine ->
             val resolvedColor = resolveColor(routine.color)
             val row = TableRow(this)
@@ -278,19 +268,20 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                     gravity = Gravity.CENTER_VERTICAL
                 }
             }
-
             nameTextView.setOnClickListener { showRoutineDetailsDialog(routine) }
             row.addView(nameTextView)
 
             for (i in 0..3) {
                 if (routine.isMeasurable) {
+                    val targetVal  = routine.target.toIntOrNull() ?: 1
+                    val currentVal = routine.inputValues[i].toIntOrNull() ?: 0
+                    val isAchieved = currentVal >= targetVal
+
                     val input = EditText(this).apply {
                         hint = "0"
                         setText(routine.inputValues[i])
-                        setTextColor(
-                            if ((routine.inputValues[i].toIntOrNull() ?: 0) > 0) resolvedColor
-                            else Color.DKGRAY
-                        )
+                        setSelection(text.length)
+                        setTextColor(if (isAchieved) resolvedColor else Color.DKGRAY)
                         setHintTextColor(Color.DKGRAY)
                         gravity = Gravity.CENTER
                         inputType = android.text.InputType.TYPE_CLASS_NUMBER
@@ -298,6 +289,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                             gravity = Gravity.CENTER
                         }
                     }
+
                     val idx = i
                     input.addTextChangedListener(object : TextWatcher {
                         override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) = Unit
@@ -305,9 +297,9 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                         override fun afterTextChanged(s: Editable?) {
                             val v = s?.toString() ?: ""
                             routine.inputValues[idx] = v
-                            input.setTextColor(
-                                if ((v.toIntOrNull() ?: 0) > 0) resolvedColor else Color.DKGRAY
-                            )
+                            val newVal = v.toIntOrNull() ?: 0
+                            input.setTextColor(if (newVal >= targetVal) resolvedColor else Color.DKGRAY)
+                            // Save first, THEN push to widgets with fresh data
                             RoutineRepository.save(this@HomeActivity)
                             updateAllWidgets()
                         }
@@ -334,6 +326,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                     val idx = i
                     checkBox.setOnCheckedChangeListener { _, isChecked ->
                         routine.checkStates[idx] = isChecked
+                        // Save first, THEN push to widgets with fresh data
                         RoutineRepository.save(this@HomeActivity)
                         updateAllWidgets()
                     }
@@ -343,6 +336,21 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             }
             tableRoutines.addView(row)
         }
+    }
+
+    // ── Directly calls updateWidget() — broadcasting is unreliable ───────────
+    private fun updateAllWidgets() {
+        val mgr = android.appwidget.AppWidgetManager.getInstance(this)
+
+        val checkmarkIds = mgr.getAppWidgetIds(
+            android.content.ComponentName(this, CheckmarkWidget::class.java)
+        )
+        checkmarkIds.forEach { CheckmarkWidget.updateWidget(this, mgr, it) }
+
+        val historyIds = mgr.getAppWidgetIds(
+            android.content.ComponentName(this, HistoryWidget::class.java)
+        )
+        historyIds.forEach { HistoryWidget.updateWidget(this, mgr, it) }
     }
 
     private fun buildCircleDrawable(hexColor: String, isSelected: Boolean): android.graphics.drawable.Drawable {
@@ -363,28 +371,6 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(color)
             }
-        }
-    }
-
-    private fun updateAllWidgets() {
-        val mgr = android.appwidget.AppWidgetManager.getInstance(this)
-
-        // Update Checkmark Widgets
-        val checkmarkIds = mgr.getAppWidgetIds(android.content.ComponentName(this, CheckmarkWidget::class.java))
-        if (checkmarkIds.isNotEmpty()) {
-            sendBroadcast(Intent(this, CheckmarkWidget::class.java).apply {
-                action = android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_IDS, checkmarkIds)
-            })
-        }
-
-        // Update History Widgets
-        val historyIds = mgr.getAppWidgetIds(android.content.ComponentName(this, com.example.pbd3_final_capstone.widget.HistoryWidget::class.java))
-        if (historyIds.isNotEmpty()) {
-            sendBroadcast(Intent(this, com.example.pbd3_final_capstone.widget.HistoryWidget::class.java).apply {
-                action = android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_IDS, historyIds)
-            })
         }
     }
 
@@ -413,7 +399,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         val deleteButton = Button(this).apply {
             text = "Delete Routine"
             setTextColor(Color.WHITE)
-            setBackgroundColor(Color.parseColor("#F44336")) // Red
+            setBackgroundColor(Color.parseColor("#F44336"))
         }
         layout.addView(deleteButton)
 
@@ -429,10 +415,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                 .setTitle("Confirm Deletion")
                 .setMessage("Are you sure to delete '${routine.name}' routine?")
                 .setPositiveButton("Delete") { _, _ ->
-
-                    // ⚠️ FIX: Delete by matching the name instead of the object reference
-                    com.example.pbd3_final_capstone.screens.home.InMemoryDB.routines.removeAll { it.name == routine.name }
-
+                    InMemoryDB.routines.removeAll { it.name == routine.name }
                     RoutineRepository.save(this)
                     presenter.loadRoutines()
                     updateAllWidgets()
@@ -440,5 +423,11 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                 .setNegativeButton("Cancel", null)
                 .show()
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        presenter.loadRoutines()
     }
 }

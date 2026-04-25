@@ -95,8 +95,23 @@ class HistoryWidget : AppWidgetProvider() {
 
             // Build checked date set from stored checkStates
             val checkedDates = mutableSetOf<String>()
-            routine.checkStates.forEachIndexed { offset, checked ->
-                if (checked) {
+//            routine.checkStates.forEachIndexed { offset, checked ->
+//                if (checked) {
+//                    val cal = Calendar.getInstance()
+//                    cal.add(Calendar.DAY_OF_YEAR, -offset)
+//                    checkedDates.add(fmt.format(cal.time))
+//                }
+//            }
+            for (offset in 0..3) {
+                val isDone = if (routine.isMeasurable) {
+                    val currentCount = routine.inputValues[offset].toIntOrNull() ?: 0
+                    val target = routine.target.toIntOrNull() ?: 1
+                    currentCount >= target
+                } else {
+                    routine.checkStates[offset]
+                }
+
+                if (isDone) {
                     val cal = Calendar.getInstance()
                     cal.add(Calendar.DAY_OF_YEAR, -offset)
                     checkedDates.add(fmt.format(cal.time))
