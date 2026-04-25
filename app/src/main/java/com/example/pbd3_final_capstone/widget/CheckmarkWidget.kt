@@ -26,13 +26,12 @@ class CheckmarkWidget : AppWidgetProvider() {
         private val colorMap = mapOf(
             "red"    to "#F44336", "orange" to "#FF9800", "yellow" to "#FFEB3B",
             "green"  to "#4CAF50", "blue"   to "#2196F3", "purple" to "#9C27B0"
+            // IGNORE PINK
         )
 
         fun refreshAll(context: Context) {
             val mgr = AppWidgetManager.getInstance(context)
             val ids = mgr.getAppWidgetIds(ComponentName(context, CheckmarkWidget::class.java))
-
-            // Load once before updating all
             RoutineRepository.load(context)
             ids.forEach { updateWidget(context, mgr, it) }
         }
@@ -40,35 +39,39 @@ class CheckmarkWidget : AppWidgetProvider() {
         fun updateWidget(context: Context, mgr: AppWidgetManager, appWidgetId: Int) {
             Log.d("WIDGET_DEBUG", "updateWidget called ID=$appWidgetId")
 
-            val binding = context
-                .getSharedPreferences("widget_bindings", Context.MODE_PRIVATE)
-                .getString(appWidgetId.toString(), null) ?: return
+            val views = RemoteViews(context.packageName, R.layout.widget_checkmark)
+            val prefs = context.getSharedPreferences("widget_bindings", Context.MODE_PRIVATE)
+            val binding = prefs.getString(appWidgetId.toString(), null)
 
-            if (!binding.startsWith("checkmark:")) return
+            // DIAGNOSTIC 1: Did the binding fail?
+            if (binding == null || !binding.startsWith("checkmark:")) {
+                views.setTextViewText(R.id.widget_checkmark_label, "Unbound")
+                mgr.updateAppWidget(appWidgetId, views)
+                return
+            }
 
             val routineName = binding.removePrefix("checkmark:")
+            RoutineRepository.load(context)
+            val routine = RoutineRepository.getByName(routineName)
 
-            // ⚠️ REMOVED RoutineRepository.load(context) from here so it doesn't overwrite your toggled state!
-            val routine = RoutineRepository.getByName(routineName) ?: return
+            // DIAGNOSTIC 2: Did the database lose your routine?
+            if (routine == null) {
+                views.setTextViewText(R.id.widget_checkmark_label, "DB Error")
+                mgr.updateAppWidget(appWidgetId, views)
+                return
+            }
 
             val checked = routine.checkStates[0]
-
-            Log.d("WIDGET_DEBUG", "Rendering checked=$checked")
-
             val resolvedColor = try {
                 Color.parseColor(colorMap[routine.color] ?: "#2196F3")
             } catch (e: Exception) { Color.BLUE }
 
-            val views = RemoteViews(context.packageName, R.layout.widget_checkmark)
-
-            // Background
+            // UI Setup
             views.setInt(
                 R.id.widget_checkmark_root,
                 "setBackgroundColor",
                 if (checked) resolvedColor else Color.parseColor("#2A2A2A")
             )
-
-            // Force icon refresh
             views.setImageViewResource(R.id.widget_checkmark_icon, 0)
             views.setImageViewResource(
                 R.id.widget_checkmark_icon,
@@ -76,22 +79,18 @@ class CheckmarkWidget : AppWidgetProvider() {
             )
             views.setInt(R.id.widget_checkmark_icon, "setColorFilter", Color.WHITE)
 
-            // Ring redraw
             val ringColor = if (checked) Color.WHITE else Color.parseColor("#888888")
             views.setImageViewBitmap(
                 R.id.widget_checkmark_circle,
                 drawRingBitmap(240, 18f, ringColor)
             )
-
-            // Label
             views.setTextViewText(R.id.widget_checkmark_label, routine.name)
 
-            // PendingIntent
+            // ⚠️ FIX: The most rock-solid explicit Intent standard for Android 14+
             val toggleIntent = Intent(context, CheckmarkWidget::class.java).apply {
                 action = ACTION_TOGGLE
                 putExtra(EXTRA_ROUTINE_NAME, routineName)
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                data = android.net.Uri.parse("app://$routineName/$appWidgetId")
             }
 
             val pi = PendingIntent.getBroadcast(
@@ -101,9 +100,14 @@ class CheckmarkWidget : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
+            // ⚠️ FIX: Bind the click to EVERY single view to stop Android Launcher bleed-through
             views.setOnClickPendingIntent(R.id.widget_checkmark_root, pi)
+            views.setOnClickPendingIntent(R.id.widget_checkmark_circle, pi)
+            views.setOnClickPendingIntent(R.id.widget_checkmark_icon, pi)
+            views.setOnClickPendingIntent(R.id.widget_checkmark_label, pi)
+
             mgr.updateAppWidget(appWidgetId, views)
-            Log.d("WIDGET_DEBUG", "Widget UI applied")
+            Log.d("WIDGET_DEBUG", "Widget UI applied successfully")
         }
 
         private fun drawRingBitmap(sizePx: Int, strokePx: Float, color: Int): Bitmap {
@@ -118,60 +122,42 @@ class CheckmarkWidget : AppWidgetProvider() {
             val inset = strokePx / 2f
             canvas.drawArc(
                 RectF(inset, inset, sizePx - inset, sizePx - inset),
-                -90f,
-                330f,
-                false,
-                paint
+                -90f, 330f, false, paint
             )
             return bmp
         }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
         Log.d("WIDGET_DEBUG", "onReceive: ${intent.action}")
 
         if (intent.action == ACTION_TOGGLE) {
-            Log.d("WIDGET_DEBUG", "TOGGLE - processing")
-
             val routineName = intent.getStringExtra(EXTRA_ROUTINE_NAME) ?: return
 
-            // Load data before modifying
-//            RoutineRepository.load(context)
-
+            RoutineRepository.load(context)
             val routine = RoutineRepository.getByName(routineName) ?: return
 
-            // Toggle the state
             routine.checkStates[0] = !routine.checkStates[0]
-
-            // Save data
             RoutineRepository.save(context)
 
-            // Push UI updates using the newly saved data in memory
             val mgr = AppWidgetManager.getInstance(context)
             val ids = mgr.getAppWidgetIds(ComponentName(context, CheckmarkWidget::class.java))
-            ids.forEach { id ->
-                updateWidget(context, mgr, id)
-            }
+            ids.forEach { id -> updateWidget(context, mgr, id) }
 
             context.sendBroadcast(Intent(ACTION_HOME_REFRESH).apply {
                 setPackage(context.packageName)
             })
-
-            return
         }
-
-        super.onReceive(context, intent)
     }
 
     override fun onUpdate(context: Context, mgr: AppWidgetManager, ids: IntArray) {
-        // Load data once when Android OS triggers an update interval
         RoutineRepository.load(context)
         ids.forEach { updateWidget(context, mgr, it) }
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
-        val editor = context
-            .getSharedPreferences("widget_bindings", Context.MODE_PRIVATE).edit()
+        val editor = context.getSharedPreferences("widget_bindings", Context.MODE_PRIVATE).edit()
         appWidgetIds.forEach { editor.remove(it.toString()) }
         editor.apply()
     }

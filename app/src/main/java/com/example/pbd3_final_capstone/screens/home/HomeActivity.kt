@@ -188,6 +188,9 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                     reminderMinute = timePicker.minute
                 )
                 presenter.addRoutine(routine)
+                // ⚠️ ADD THIS EXACT LINE:
+                // This permanently saves the routine so the widget can actually find it!
+                com.example.pbd3_final_capstone.data.RoutineRepository.save(this)
             }
             .setNegativeButton("Cancel", null)
             .show()

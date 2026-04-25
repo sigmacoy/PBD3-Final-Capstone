@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="100dp"
-    android:minHeight="100dp"
-    android:minResizeWidth="100dp"
-    android:minResizeHeight="100dp"
+    android:minWidth="110dp"
+    android:minHeight="110dp"
     android:targetCellWidth="2"
     android:targetCellHeight="2"
-    android:maxResizeWidth="100dp"
-    android:maxResizeHeight="100dp"
-    android:resizeMode="none"
-    android:updatePeriodMillis="0"
+    android:maxResizeWidth="110dp"
+    android:maxResizeHeight="110dp"
+    android:updatePeriodMillis="86400000"
     android:initialLayout="@layout/widget_checkmark"
-    android:configure="com.example.pbd3_final_capstone.widget.CheckmarkWidgetConfigActivity"
-    android:widgetCategory="home_screen" />
+    android:resizeMode="none"
+    android:widgetCategory="home_screen"
+
+    android:configure="com.example.pbd3_final_capstone.widget.CheckmarkWidgetConfigActivity" />
