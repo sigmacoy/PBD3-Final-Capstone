@@ -8,16 +8,28 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.pbd3_final_capstone.R
+import android.view.View
 import android.widget.PopupMenu
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.view.Gravity
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.IntentFilter
+import com.example.pbd3_final_capstone.data.RoutineRepository
+import com.example.pbd3_final_capstone.widget.CheckmarkWidget
+import com.example.pbd3_final_capstone.utils.ReminderScheduler
 import java.util.Calendar
 import java.text.SimpleDateFormat
 import java.util.Locale
-import com.example.pbd3_final_capstone.screens.home.HomeContract
-import android.view.View
 
 class HomeActivity : AppCompatActivity(), HomeContract.View {
+
+    // Receives broadcast from CheckmarkWidget tap → instant table refresh
+    private val widgetRefreshReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context?, intent: android.content.Intent?) {
+            presenter.loadRoutines()
+        }
+    }
     private lateinit var presenter: HomePresenter
     private lateinit var tableHabits: TableLayout
 
@@ -27,7 +39,8 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         "yellow" to "#FFEB3B",
         "green"  to "#4CAF50",
         "blue"   to "#2196F3",
-        "purple" to "#9C27B0"
+        "purple" to "#9C27B0",
+        "pink"   to "#E91E63"
     )
 
     private fun resolveColor(colorStr: String): Int {
@@ -39,7 +52,11 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        presenter = HomePresenter(this)
+        ReminderScheduler.createChannel(this)
+        ReminderScheduler.scheduleMidnightReset(this)
+
+        // Use context-aware presenter
+        presenter = HomePresenter(this, this)
         tableHabits = findViewById(R.id.tableRoutines)
 
         findViewById<ImageButton>(R.id.btnAdd).setOnClickListener { showTypeDialog() }
@@ -48,17 +65,33 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         presenter.loadRoutines()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Reload in case widget toggled while app was backgrounded
+        presenter.loadRoutines()
+        // Register live receiver for instant widget -> home sync
+        registerReceiver(
+            widgetRefreshReceiver,
+            IntentFilter(CheckmarkWidget.ACTION_HOME_REFRESH),
+            Context.RECEIVER_NOT_EXPORTED
+        )
+    }
+
+    override fun onPause() {
+        super.onPause()
+        RoutineRepository.save(this)
+        unregisterReceiver(widgetRefreshReceiver)
+    }
+
     override fun showTypeDialog() {
         val dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.dialog_add_type, null)
 
         view.findViewById<View>(R.id.cardYesNo).setOnClickListener {
-            dialog.dismiss()
-            showCreateDialog(false)
+            dialog.dismiss(); showCreateDialog(false)
         }
         view.findViewById<View>(R.id.cardMeasurable).setOnClickListener {
-            dialog.dismiss()
-            showCreateDialog(true)
+            dialog.dismiss(); showCreateDialog(true)
         }
 
         dialog.setContentView(view)
@@ -77,7 +110,6 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         val inputQuestion = EditText(this).apply {
             hint = if (isMeasurable) "Question (e.g. How many glasses?)" else "Question (e.g. Did you exercise?)"
         }
-
         layout.addView(inputName)
         layout.addView(inputQuestion)
 
@@ -90,12 +122,12 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             layout.addView(inputTarget)
         }
 
-        val colorLabel = TextView(this).apply {
+        // ── Color picker ─────────────────────────────────────────────────────
+        layout.addView(TextView(this).apply {
             text = "Pick a color"
             setTextColor(Color.DKGRAY)
             setPadding(0, 16, 0, 8)
-        }
-        layout.addView(colorLabel)
+        })
 
         val colorRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -104,17 +136,20 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
 
         var selectedColor = "red"
         val circleViews = mutableMapOf<String, View>()
-        val dp = resources.displayMetrics.density
+        val dp     = resources.displayMetrics.density
         val size   = (32 * dp).toInt()
         val margin = (8  * dp).toInt()
 
         colorMap.forEach { (name, hex) ->
             val circle = View(this).apply {
-                layoutParams = LinearLayout.LayoutParams(size, size).apply { setMargins(margin, 0, margin, 0) }
+                layoutParams = LinearLayout.LayoutParams(size, size).apply {
+                    setMargins(margin, 0, margin, 0)
+                }
                 background = buildCircleDrawable(hex, isSelected = (name == selectedColor))
             }
             circle.setOnClickListener {
-                circleViews[selectedColor]?.background = buildCircleDrawable(colorMap[selectedColor]!!, isSelected = false)
+                circleViews[selectedColor]?.background =
+                    buildCircleDrawable(colorMap[selectedColor]!!, isSelected = false)
                 selectedColor = name
                 circle.background = buildCircleDrawable(hex, isSelected = true)
             }
@@ -124,44 +159,38 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         circleViews["red"]?.background = buildCircleDrawable(colorMap["red"]!!, isSelected = true)
         layout.addView(colorRow)
 
+        // ── Reminder time picker ─────────────────────────────────────────────
+        layout.addView(TextView(this).apply {
+            text = "Daily reminder time"
+            setTextColor(Color.DKGRAY)
+            setPadding(0, 24, 0, 8)
+        })
+
+        val timePicker = TimePicker(this).apply {
+            setIs24HourView(false)
+            hour   = 8
+            minute = 0
+        }
+        layout.addView(timePicker)
+
         AlertDialog.Builder(this)
             .setTitle(if (isMeasurable) "Create Measurable" else "Create Yes / No")
             .setView(layout)
             .setPositiveButton("Save") { _, _ ->
-                presenter.addRoutine(Routine(
-                    name         = inputName.text.toString(),
-                    question     = inputQuestion.text.toString(),
-                    isMeasurable = isMeasurable,
-                    color        = selectedColor,
-                    unit         = inputUnit?.text?.toString() ?: "",
-                    target       = inputTarget?.text?.toString() ?: ""
-                ))
+                val routine = Routine(
+                    name           = inputName.text.toString(),
+                    question       = inputQuestion.text.toString(),
+                    isMeasurable   = isMeasurable,
+                    color          = selectedColor,
+                    unit           = inputUnit?.text?.toString()   ?: "",
+                    target         = inputTarget?.text?.toString() ?: "",
+                    reminderHour   = timePicker.hour,
+                    reminderMinute = timePicker.minute
+                )
+                presenter.addRoutine(routine)
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    private fun persistUIState() {
-        val table = findViewById<TableLayout>(R.id.tableRoutines)
-
-        // Skip header row (index 0)
-        for (i in 1 until table.childCount) {
-            val row = table.getChildAt(i) as TableRow
-            val routine = InMemoryDB.routines[i - 1]
-
-            for (j in 1 until row.childCount) {
-                val cell = row.getChildAt(j)
-
-                if (routine.isMeasurable) {
-                    val input = cell as EditText
-                    routine.inputValues[j - 1] = input.text.toString()
-                } else {
-                    val container = cell as LinearLayout
-                    val checkBox = container.getChildAt(0) as CheckBox
-                    routine.checkStates[j - 1] = checkBox.isChecked
-                }
-            }
-        }
     }
 
     override fun showSortDialog() {
@@ -173,7 +202,6 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         popup.menu.add(0, 2, 2, "By color")
 
         popup.setOnMenuItemClickListener { item ->
-            persistUIState()
             when (item.itemId) {
                 1 -> presenter.sortRoutines(byName = true)
                 2 -> presenter.sortRoutines(byName = false)
@@ -214,19 +242,19 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             layoutParams = TableRow.LayoutParams(nameWidth, cellSize)
         })
         days.forEach { (dayText, dateText) ->
-            val cellLayout = LinearLayout(this).apply {
+            val cell = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER
                 layoutParams = TableRow.LayoutParams(cellSize, cellSize)
             }
-            cellLayout.addView(TextView(this).apply {
+            cell.addView(TextView(this).apply {
                 text = dayText; textSize = 10f; setTextColor(Color.LTGRAY); gravity = Gravity.CENTER
             })
-            cellLayout.addView(TextView(this).apply {
+            cell.addView(TextView(this).apply {
                 text = dateText; textSize = 12f; setTextColor(Color.WHITE); gravity = Gravity.CENTER
                 setTypeface(null, android.graphics.Typeface.BOLD)
             })
-            headerRow.addView(cellLayout)
+            headerRow.addView(cell)
         }
         tableRoutines.addView(headerRow)
 
@@ -250,7 +278,6 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                     val input = EditText(this).apply {
                         hint = "0"
                         setText(routine.inputValues[i])
-                        setSelection(text.length)
                         setTextColor(
                             if ((routine.inputValues[i].toIntOrNull() ?: 0) > 0) resolvedColor
                             else Color.DKGRAY
@@ -265,13 +292,14 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                     val idx = i
                     input.addTextChangedListener(object : TextWatcher {
                         override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) = Unit
-                        override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) = Unit
+                        override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int)     = Unit
                         override fun afterTextChanged(s: Editable?) {
                             val v = s?.toString() ?: ""
-                            routine.inputValues[idx] = v          // ← persist into routine
+                            routine.inputValues[idx] = v
                             input.setTextColor(
                                 if ((v.toIntOrNull() ?: 0) > 0) resolvedColor else Color.DKGRAY
                             )
+                            RoutineRepository.save(this@HomeActivity)
                         }
                     })
                     row.addView(input)
@@ -284,7 +312,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                         }
                     }
                     val checkBox = CheckBox(this).apply {
-                        isChecked = routine.checkStates[i]        // ← restore saved state
+                        isChecked = routine.checkStates[i]
                         buttonTintList = android.content.res.ColorStateList(
                             arrayOf(
                                 intArrayOf(-android.R.attr.state_checked),
@@ -295,7 +323,8 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                     }
                     val idx = i
                     checkBox.setOnCheckedChangeListener { _, isChecked ->
-                        routine.checkStates[idx] = isChecked      // ← persist into routine
+                        routine.checkStates[idx] = isChecked
+                        RoutineRepository.save(this@HomeActivity)
                     }
                     container.addView(checkBox)
                     row.addView(container)
@@ -309,14 +338,14 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         val color = try { Color.parseColor(hexColor) } catch (e: Exception) { Color.WHITE }
         val dp    = resources.displayMetrics.density
         return if (isSelected) {
-            val outerRing   = android.graphics.drawable.GradientDrawable().apply {
+            val outer = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(Color.WHITE)
             }
-            val innerCircle = android.graphics.drawable.GradientDrawable().apply {
+            val inner = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(color)
             }
             val inset = (4 * dp).toInt()
-            android.graphics.drawable.LayerDrawable(arrayOf(outerRing, innerCircle)).also {
+            android.graphics.drawable.LayerDrawable(arrayOf(outer, inner)).also {
                 it.setLayerInset(1, inset, inset, inset, inset)
             }
         } else {

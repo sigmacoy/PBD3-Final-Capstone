@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/layout/widget_checkmark.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_checkmark_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="12dp"
+    android:background="@drawable/widget_bg_rounded">
+
+    <!-- FrameLayout stacks the ring + icon perfectly centered on each other -->
+    <FrameLayout
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center_horizontal">
+
+        <!-- Ring drawn at runtime via bitmap -->
+        <ImageView
+            android:id="@+id/widget_checkmark_circle"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:src="@drawable/widget_circle_ring" />
+
+        <!-- X or Check icon on top, centered inside the ring -->
+        <ImageView
+            android:id="@+id/widget_checkmark_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:src="@android:drawable/ic_menu_close_clear_cancel" />
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/widget_checkmark_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:text="Routine" />
+
+</LinearLayout>

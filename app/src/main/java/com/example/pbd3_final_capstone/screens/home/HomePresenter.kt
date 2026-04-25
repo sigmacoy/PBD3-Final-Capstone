@@ -1,25 +1,42 @@
 package com.example.pbd3_final_capstone.screens.home
 
-class HomePresenter(private val homeView: HomeContract.View) : HomeContract.Presenter {
-    private var isSortedByName = false
+import android.content.Context
+import com.example.pbd3_final_capstone.data.RoutineRepository
+import com.example.pbd3_final_capstone.utils.ReminderScheduler
+
+class HomePresenter(
+    private val view: HomeContract.View,
+    private val context: Context
+) : HomeContract.Presenter {
+
+    private var isSortedByName  = false
     private var isSortedByColor = false
 
     override fun loadRoutines() {
-        homeView.refreshTable(InMemoryDB.routines)
+        RoutineRepository.load(context)
+        view.refreshTable(InMemoryDB.routines)
     }
 
     override fun addRoutine(routine: Routine) {
         InMemoryDB.routines.add(routine)
-        homeView.refreshTable(InMemoryDB.routines)
+        RoutineRepository.save(context)
+        ReminderScheduler.scheduleReminder(context, routine)
+        view.refreshTable(InMemoryDB.routines)
     }
 
     override fun sortRoutines(byName: Boolean) {
-        if (byName) {
-            InMemoryDB.routines.sortBy { it.name.lowercase() }
-        } else {
-            InMemoryDB.routines.sortBy { it.color.lowercase() }
-        }
+        // Persist current UI state before sorting
+        RoutineRepository.save(context)
 
-        homeView.refreshTable(InMemoryDB.routines)
+        if (byName) {
+            isSortedByName = !isSortedByName
+            if (isSortedByName) InMemoryDB.routines.sortBy { it.name }
+            else                InMemoryDB.routines.sortByDescending { it.name }
+        } else {
+            isSortedByColor = !isSortedByColor
+            if (isSortedByColor) InMemoryDB.routines.sortBy { it.color }
+            else                 InMemoryDB.routines.sortByDescending { it.color }
+        }
+        view.refreshTable(InMemoryDB.routines)
     }
 }
