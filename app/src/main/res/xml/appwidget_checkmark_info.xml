@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- res/xml/appwidget_checkmark_info.xml — 2×2 -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="180dp"
-    android:minHeight="180dp"
+    android:minWidth="100dp"
+    android:minHeight="100dp"
+    android:minResizeWidth="100dp"
+    android:minResizeHeight="100dp"
     android:targetCellWidth="2"
     android:targetCellHeight="2"
+    android:maxResizeWidth="100dp"
+    android:maxResizeHeight="100dp"
+    android:resizeMode="none"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/widget_checkmark"
     android:configure="com.example.pbd3_final_capstone.widget.CheckmarkWidgetConfigActivity"
-    android:widgetCategory="home_screen"
-    android:description="@string/app_name" />
+    android:widgetCategory="home_screen" />

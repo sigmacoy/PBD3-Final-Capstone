@@ -30,7 +30,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <!-- THIS LINE WAS MISSING — toggle never fired without it -->
                 <action android:name="com.example.pbd3_final_capstone.CHECKMARK_TOGGLE" />
             </intent-filter>
             <meta-data
@@ -81,6 +80,7 @@
             android:name=".utils.MidnightResetReceiver"
             android:exported="false" />
 
+<!--        Go straight directly to the home menu, for quick debug only.... -->
 <!--        <activity android:name=".screens.home.HomeActivity" android:exported="false" />-->
     </application>
 </manifest>
