@@ -270,7 +270,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             row.addView(TextView(this).apply {
                 text = "${routine.name}\n${if (routine.isMeasurable) routine.unit else ""}"
                 setTextColor(resolvedColor)
-                setPadding(16, 25, 16, 0)
+                setPadding(16, 35, 16, 0)
                 gravity = Gravity.CENTER_VERTICAL
                 layoutParams = TableRow.LayoutParams(nameWidth, cellSize).apply {
                     gravity = Gravity.CENTER_VERTICAL
@@ -382,6 +382,4 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             })
         }
     }
-
-
 }
