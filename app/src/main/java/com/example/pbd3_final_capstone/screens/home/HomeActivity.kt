@@ -42,6 +42,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         "green"  to "#4CAF50",
         "blue"   to "#2196F3",
         "purple" to "#9C27B0",
+        "pink"   to "#E91E63"
     )
 
     private fun resolveColor(colorStr: String): Int {
@@ -53,6 +54,15 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+        // Request POST_NOTIFICATIONS permission on Android 13+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001
+                )
+            }
+        }
         ReminderScheduler.createChannel(this)
         ReminderScheduler.scheduleMidnightReset(this)
 

@@ -38,7 +38,13 @@ object ReminderScheduler {
             if (before(Calendar.getInstance())) add(Calendar.DAY_OF_YEAR, 1)
         }
 
-        am.setRepeating(AlarmManager.RTC_WAKEUP, cal.timeInMillis, AlarmManager.INTERVAL_DAY, pi)
+        // On Android 12+ use setExactAndAllowWhileIdle for reliable delivery
+        // setRepeating is inexact on modern Android — reschedule in the receiver instead
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && am.canScheduleExactAlarms()) {
+            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pi)
+        } else {
+            am.setRepeating(AlarmManager.RTC_WAKEUP, cal.timeInMillis, AlarmManager.INTERVAL_DAY, pi)
+        }
     }
 
     // ── Cancel a reminder ───────────────────────────────────────────────────
@@ -97,10 +103,16 @@ class ReminderReceiver : BroadcastReceiver() {
             .setSmallIcon(android.R.drawable.ic_popup_reminder)
             .setContentTitle("Routine Reminder")
             .setContentText("Don't forget: $name")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
 
         nm.notify(name.hashCode(), notification)
+
+        // Reschedule for tomorrow (setExactAndAllowWhileIdle is one-shot)
+        com.example.pbd3_final_capstone.data.RoutineRepository.load(context)
+        val routine = com.example.pbd3_final_capstone.data.RoutineRepository.getByName(name) ?: return
+        ReminderScheduler.scheduleReminder(context, routine)
     }
 }
 
