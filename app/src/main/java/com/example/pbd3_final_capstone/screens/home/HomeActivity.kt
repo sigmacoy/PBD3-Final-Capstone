@@ -69,9 +69,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         tableHabits = findViewById(R.id.tableRoutines)
 
         findViewById<ImageButton>(R.id.btnAdd).setOnClickListener {
-            startActivity(
-                android.content.Intent(this, RoutineEditorActivity::class.java)
-            )
+            showTypeDialog()
         }
         findViewById<ImageButton>(R.id.btnSort).setOnClickListener { showSortDialog() }
 
@@ -99,10 +97,20 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         val dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.dialog_add_type, null)
         view.findViewById<View>(R.id.cardYesNo).setOnClickListener {
-            dialog.dismiss(); showCreateDialog(false)
+            dialog.dismiss()
+
+            val intent = Intent(this, RoutineEditorActivity::class.java)
+            intent.putExtra("is_measurable", false)
+
+            startActivity(intent)
         }
         view.findViewById<View>(R.id.cardMeasurable).setOnClickListener {
-            dialog.dismiss(); showCreateDialog(true)
+            dialog.dismiss()
+
+            val intent = Intent(this, RoutineEditorActivity::class.java)
+            intent.putExtra("is_measurable", true)
+
+            startActivity(intent)
         }
         dialog.setContentView(view)
         dialog.show()

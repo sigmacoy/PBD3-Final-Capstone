@@ -16,7 +16,7 @@ Or res/mipmap-*/ (for launcher icons)
    So yeah it might kinda long for the screen, so its not like a popup now, it goes to another screen,
    where the user can scroll down although just a little bit.
 
-5.
+5. Frequency selection is currently WRONG. COZ ITS HARDCODED
 
 6. Can able to view data streak history from the widget history when pressing a routine option. (new screen)
 This will display the question, the what kind reminder... the time of the reminder of the day.
@@ -24,6 +24,17 @@ Using the calendar format from the widget history. Display that and label it top
 
 7. fix the spacing the color and the pm or am at reminder time
 
-8. Fix the theme to be like black background ofc, the text are mostly white and secondary color is Red...
+8.
 
 9. When pressing create new routine, the choice like the Is it measurable or yes or no is gone. fix it....
+
+10. When pressing a routine, it will show the summary, the top right are [ Edit_btn     Delete_btn   ] all texts.
+
+11. I deleted RoutineEditor btw. When editing a YesNo routine, it still will use the activity_create_yesno.xml but it will display
+"Edit Routine"
+
+12.
+
+
+TODO:
+1. Make all screens first, then implement logic...
