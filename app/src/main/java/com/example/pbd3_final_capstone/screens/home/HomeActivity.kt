@@ -68,7 +68,11 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         presenter = HomePresenter(this, this)
         tableHabits = findViewById(R.id.tableRoutines)
 
-        findViewById<ImageButton>(R.id.btnAdd).setOnClickListener { showTypeDialog() }
+        findViewById<ImageButton>(R.id.btnAdd).setOnClickListener {
+            startActivity(
+                android.content.Intent(this, RoutineEditorActivity::class.java)
+            )
+        }
         findViewById<ImageButton>(R.id.btnSort).setOnClickListener { showSortDialog() }
 
         presenter.loadRoutines()
@@ -183,13 +187,33 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             .setTitle(if (isMeasurable) "Create Measurable" else "Create Yes / No")
             .setView(layout)
             .setPositiveButton("Save") { _, _ ->
+                val name = inputName.text.toString().trim()
+                val question = inputQuestion.text.toString().trim()
+
+                // VALIDATION
+                if (name.isEmpty()) {
+                    Toast.makeText(this, "Please enter a routine name", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                if (question.isEmpty()) {
+                    Toast.makeText(this, "Please enter a question", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                if (isMeasurable) {
+                    val target = inputTarget?.text?.toString()?.trim() ?: ""
+                    if (target.isEmpty() || target.toIntOrNull() == null) {
+                        Toast.makeText(this, "Please enter a valid target number", Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+                }
+
                 val routine = Routine(
-                    name           = inputName.text.toString(),
-                    question       = inputQuestion.text.toString(),
+                    name           = name,
+                    question       = question,
                     isMeasurable   = isMeasurable,
                     color          = selectedColor,
-                    unit           = inputUnit?.text?.toString()   ?: "",
-                    target         = inputTarget?.text?.toString() ?: "",
+                    unit           = inputUnit?.text?.toString()?.trim()   ?: "",
+                    target         = inputTarget?.text?.toString()?.trim() ?: "",
                     reminderHour   = timePicker.hour,
                     reminderMinute = timePicker.minute
                 )
@@ -226,89 +250,175 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             scrollContainer.visibility = View.GONE
             return
         }
+
         scrollContainer.visibility = View.VISIBLE
 
         val dayFormat  = SimpleDateFormat("EEE", Locale.getDefault())
-        val dateFormat = SimpleDateFormat("d",   Locale.getDefault())
+        val dateFormat = SimpleDateFormat("d", Locale.getDefault())
+
         val days = mutableListOf<Pair<String, String>>()
         val calendar = Calendar.getInstance()
+
+        // OLD -> NEW
+        calendar.add(Calendar.DAY_OF_YEAR, -3)
+
         for (i in 0..3) {
-            days.add(Pair(dayFormat.format(calendar.time).uppercase(), dateFormat.format(calendar.time)))
-            calendar.add(Calendar.DAY_OF_YEAR, -1)
+            days.add(
+                Pair(
+                    dayFormat.format(calendar.time).uppercase(),
+                    dateFormat.format(calendar.time)
+                )
+            )
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
-        val dp        = resources.displayMetrics.density
-        val cellSize  = (50  * dp).toInt()
-        val nameWidth = (120 * dp).toInt()
+        val dp = resources.displayMetrics.density
 
-        // Header row
-        val headerRow = TableRow(this)
-        headerRow.addView(TextView(this).apply {
-            layoutParams = TableRow.LayoutParams(nameWidth, cellSize)
-        })
+        // SMALLER WIDTHS = LESS GAP
+        val cellSize  = (56 * dp).toInt()
+        val nameWidth = (105 * dp).toInt()
+
+        // =========================================
+        // HEADER ROW
+        // =========================================
+        val headerRow = TableRow(this).apply {
+            setPadding(0, 0, 0, 0)
+        }
+        headerRow.addView(
+            TextView(this).apply {
+                layoutParams = TableRow.LayoutParams(nameWidth, cellSize)
+                setPadding(0, 0, 0, 0)
+            }
+        )
+
         days.forEach { (dayText, dateText) ->
             val cell = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER
-                layoutParams = TableRow.LayoutParams(cellSize, cellSize)
+
+                layoutParams = TableRow.LayoutParams(cellSize, cellSize).apply {
+                    setMargins(0, 0, 0, 0) // REMOVE GAPS
+                }
+
+                setPadding(0, 0, 0, 0)
             }
-            cell.addView(TextView(this).apply {
-                text = dayText; textSize = 10f; setTextColor(Color.LTGRAY); gravity = Gravity.CENTER
-            })
-            cell.addView(TextView(this).apply {
-                text = dateText; textSize = 12f; setTextColor(Color.WHITE); gravity = Gravity.CENTER
-                setTypeface(null, android.graphics.Typeface.BOLD)
-            })
+
+            cell.addView(
+                TextView(this).apply {
+                    text = dayText
+                    textSize = 13f
+                    gravity = Gravity.CENTER
+                    setTextColor(Color.LTGRAY)
+                    setPadding(0, 0, 0, 0)
+                }
+            )
+
+            cell.addView(
+                TextView(this).apply {
+                    text = dateText
+                    textSize = 16f
+                    gravity = Gravity.CENTER
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    setTextColor(Color.WHITE)
+                    setPadding(0, 0, 0, 0)
+                }
+            )
+
             headerRow.addView(cell)
         }
+
         tableRoutines.addView(headerRow)
 
-        // Data rows
+        // =========================================
+        // DATA ROWS
+        // =========================================
         routines.forEach { routine ->
             val resolvedColor = resolveColor(routine.color)
-            val row = TableRow(this)
-
+            val row = TableRow(this).apply {
+                setPadding(0, 0, 0, 0)
+            }
+            // ROUTINE NAME
             val nameTextView = TextView(this).apply {
-                text = "${routine.name}\n${if (routine.isMeasurable) routine.unit else ""}"
+                text = buildString {
+                    append(routine.name)
+                    if (routine.isMeasurable && routine.unit.isNotBlank()) {
+                        append("\n")
+                        append(routine.unit)
+                    }
+                }
                 setTextColor(resolvedColor)
-                setPadding(16, 25, 16, 0)
+                // MUCH SMALLER PADDING
+                setPadding(8, 0, 4, 0)
                 gravity = Gravity.CENTER_VERTICAL
                 layoutParams = TableRow.LayoutParams(nameWidth, cellSize).apply {
-                    gravity = Gravity.CENTER_VERTICAL
+                    setMargins(0, 0, 0, 0)
                 }
             }
-            nameTextView.setOnClickListener { showRoutineDetailsDialog(routine) }
+
+            nameTextView.setOnClickListener {
+                showRoutineDetailsDialog(routine)
+            }
+
             row.addView(nameTextView)
 
+            // =========================================
+            // CELLS
+            // =========================================
             for (i in 0..3) {
                 if (routine.isMeasurable) {
                     val targetVal  = routine.target.toIntOrNull() ?: 1
                     val currentVal = routine.inputValues[i].toIntOrNull() ?: 0
-                    val isAchieved = currentVal >= targetVal
-
                     val input = EditText(this).apply {
                         hint = "0"
                         setText(routine.inputValues[i])
                         setSelection(text.length)
-                        setTextColor(if (isAchieved) resolvedColor else Color.DKGRAY)
+                        setTextColor(
+                            if (currentVal >= targetVal) resolvedColor
+                            else Color.DKGRAY
+                        )
                         setHintTextColor(Color.DKGRAY)
                         gravity = Gravity.CENTER
-                        inputType = android.text.InputType.TYPE_CLASS_NUMBER
+                        textSize = 18f
+                        inputType =
+                            android.text.InputType.TYPE_CLASS_NUMBER or
+                                    android.text.InputType.TYPE_NUMBER_FLAG_SIGNED
+
+                        // IMPORTANT
+                        minWidth = 0
+                        minimumWidth = 0
+
+                        // VERY SMALL INTERNAL PADDING
+                        setPadding(0, 0, 0, 0)
+
+                        // REMOVE EXTRA SPACE
+                        includeFontPadding = false
+                        background = null
                         layoutParams = TableRow.LayoutParams(cellSize, cellSize).apply {
-                            gravity = Gravity.CENTER
+                            setMargins(0, 0, 0, 0)
                         }
                     }
-
                     val idx = i
                     input.addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) = Unit
-                        override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int)     = Unit
+                        override fun beforeTextChanged(
+                            s: CharSequence?,
+                            st: Int,
+                            c: Int,
+                            a: Int
+                        ) = Unit
+                        override fun onTextChanged(
+                            s: CharSequence?,
+                            st: Int,
+                            b: Int,
+                            c: Int
+                        ) = Unit
                         override fun afterTextChanged(s: Editable?) {
-                            val v = s?.toString() ?: ""
-                            routine.inputValues[idx] = v
-                            val newVal = v.toIntOrNull() ?: 0
-                            input.setTextColor(if (newVal >= targetVal) resolvedColor else Color.DKGRAY)
-                            // Save first, THEN push to widgets with fresh data
+                            val value = s?.toString() ?: ""
+                            routine.inputValues[idx] = value
+                            val newVal = value.toIntOrNull() ?: 0
+                            input.setTextColor(
+                                if (newVal >= targetVal) resolvedColor
+                                else Color.DKGRAY
+                            )
                             RoutineRepository.save(this@HomeActivity)
                             updateAllWidgets()
                         }
@@ -316,26 +426,32 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                     row.addView(input)
                 } else {
                     val container = LinearLayout(this).apply {
-                        orientation = LinearLayout.VERTICAL
                         gravity = Gravity.CENTER
+                        setPadding(0, 0, 0, 0)
                         layoutParams = TableRow.LayoutParams(cellSize, cellSize).apply {
-                            gravity = Gravity.CENTER
+                            setMargins(0, 0, 0, 0)
                         }
                     }
                     val checkBox = CheckBox(this).apply {
                         isChecked = routine.checkStates[i]
+                        // REMOVE CHECKBOX EXTRA PADDING
+                        setPadding(0, 0, 0, 0)
+                        minWidth = 0
+                        minimumWidth = 0
                         buttonTintList = android.content.res.ColorStateList(
                             arrayOf(
                                 intArrayOf(-android.R.attr.state_checked),
-                                intArrayOf( android.R.attr.state_checked)
+                                intArrayOf(android.R.attr.state_checked)
                             ),
-                            intArrayOf(Color.DKGRAY, resolvedColor)
+                            intArrayOf(
+                                Color.DKGRAY,
+                                resolvedColor
+                            )
                         )
                     }
                     val idx = i
                     checkBox.setOnCheckedChangeListener { _, isChecked ->
                         routine.checkStates[idx] = isChecked
-                        // Save first, THEN push to widgets with fresh data
                         RoutineRepository.save(this@HomeActivity)
                         updateAllWidgets()
                     }
@@ -405,6 +521,13 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             setLineSpacing(0f, 1.3f)
         })
 
+        val editButton = Button(this).apply {
+            text = "Edit Routine"
+            setTextColor(Color.WHITE)
+            setBackgroundColor(Color.parseColor("#2196F3"))
+        }
+        layout.addView(editButton)
+
         val deleteButton = Button(this).apply {
             text = "Delete Routine"
             setTextColor(Color.WHITE)
@@ -418,13 +541,21 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
             .setPositiveButton("Close", null)
             .show()
 
+        editButton.setOnClickListener {
+            val intent = Intent(this, RoutineEditorActivity::class.java)
+            intent.putExtra("edit_mode", true)
+            intent.putExtra("routine_id", routine.id)
+            startActivity(intent)
+            detailsDialog.dismiss()
+        }
+
         deleteButton.setOnClickListener {
             detailsDialog.dismiss()
             AlertDialog.Builder(this)
                 .setTitle("Confirm Deletion")
                 .setMessage("Are you sure to delete '${routine.name}' routine?")
                 .setPositiveButton("Delete") { _, _ ->
-                    InMemoryDB.routines.removeAll { it.name == routine.name }
+                    InMemoryDB.routines.removeAll { it.id == routine.id }
                     RoutineRepository.save(this)
                     presenter.loadRoutines()
                     updateAllWidgets()

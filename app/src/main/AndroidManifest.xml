@@ -82,5 +82,8 @@
 
 <!--        Go straight directly to the home menu, for quick debug only.... -->
 <!--        <activity android:name=".screens.home.HomeActivity" android:exported="false" />-->
+
+        <activity android:name=".screens.home.RoutineEditorActivity" />
+
     </application>
 </manifest>

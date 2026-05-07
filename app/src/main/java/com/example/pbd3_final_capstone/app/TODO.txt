@@ -1,0 +1,29 @@
+1.  res/drawable/ (for vector XML icons, or PNG icons in a single density)
+Or res/mipmap-*/ (for launcher icons)
+
+2.
+
+3. Must be able to edit a routine (same screen format from the create a routine, but modifies the values)
+
+4. add a Name Label, add a Question Label (AND Add " Did you exercise today? (Optional)" placeholder text for the Question part when adding new routine.)
+   add a Frequency option, when clicked has 5 choices...
+   i. Every day
+   ii. Every {user_input_number (this will be a blank where user MUST input a number) } days
+   iii. {user_input_number (this will be a blank where user MUST input a number)}  times per week
+   iv. {user_input_number (this will be a blank where user MUST input a number)} times per month
+   v. {user_input_number_1 (this will be a blank where user MUST input a number)} times in {user_input_number_2 (this will be a blank where user MUST input a number)} days
+   add a Notes and with "(Optional)" as its placeholder
+   So yeah it might kinda long for the screen, so its not like a popup now, it goes to another screen,
+   where the user can scroll down although just a little bit.
+
+5.
+
+6. Can able to view data streak history from the widget history when pressing a routine option. (new screen)
+This will display the question, the what kind reminder... the time of the reminder of the day.
+Using the calendar format from the widget history. Display that and label it top left "Calendar"
+
+7. fix the spacing the color and the pm or am at reminder time
+
+8. Fix the theme to be like black background ofc, the text are mostly white and secondary color is Red...
+
+9. When pressing create new routine, the choice like the Is it measurable or yes or no is gone. fix it....

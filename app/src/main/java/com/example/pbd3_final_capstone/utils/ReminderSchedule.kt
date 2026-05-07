@@ -92,36 +92,3 @@ object ReminderScheduler {
         }
     }
 }
-
-// ── Fires at user-set reminder time ─────────────────────────────────────────
-class ReminderReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
-        val name = intent.getStringExtra("routine_name") ?: return
-        val nm   = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        val notification = NotificationCompat.Builder(context, "routine_reminders")
-            .setSmallIcon(android.R.drawable.ic_popup_reminder)
-            .setContentTitle("Routine Reminder")
-            .setContentText("Don't forget: $name")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
-
-        nm.notify(name.hashCode(), notification)
-
-        // Reschedule for tomorrow (setExactAndAllowWhileIdle is one-shot)
-        com.example.pbd3_final_capstone.data.RoutineRepository.load(context)
-        val routine = com.example.pbd3_final_capstone.data.RoutineRepository.getByName(name) ?: return
-        ReminderScheduler.scheduleReminder(context, routine)
-    }
-}
-
-// ── Fires at midnight — resets today's checkStates ──────────────────────────
-class MidnightResetReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
-        RoutineRepository.load(context)
-        RoutineRepository.resetTodayChecks(context)
-        // Refresh all checkmark widgets
-        com.example.pbd3_final_capstone.widget.CheckmarkWidget.refreshAll(context)
-    }
-}
