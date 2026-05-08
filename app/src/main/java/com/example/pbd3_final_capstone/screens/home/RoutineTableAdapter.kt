@@ -112,24 +112,36 @@ class RoutineTableAdapter(
         val resolvedColor = ColorHelper.resolveColor(routine.color)
         val row = TableRow(activity).apply { setPadding(0, 0, 0, 0) }
 
-        val nameTextView = TextView(activity).apply {
-            text = buildString {
-                append(routine.name)
-                if (routine.isMeasurable && routine.unit.isNotBlank()) {
-                    append("\n")
-                    append(routine.unit)
-                }
-            }
-            setTextColor(resolvedColor)
+        val nameLayout = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
             setPadding(8, 0, 4, 0)
-            gravity = Gravity.CENTER_VERTICAL
             layoutParams = TableRow.LayoutParams(nameWidth, cellSize).apply {
                 setMargins(0, 0, 0, 0)
             }
         }
 
-        nameTextView.setOnClickListener { onRoutineClick(routine) }
-        row.addView(nameTextView)
+        val nameText = TextView(activity).apply {
+            text = routine.name
+            setTextColor(resolvedColor)
+            textSize = 14f
+            gravity = Gravity.CENTER
+        }
+        nameLayout.addView(nameText)
+
+        if (routine.isMeasurable && routine.unit.isNotBlank()) {
+            val unitText = TextView(activity).apply {
+                text = routine.unit
+                setTextColor(resolvedColor)
+                textSize = 11f
+                alpha = 0.7f
+                gravity = Gravity.CENTER
+            }
+            nameLayout.addView(unitText)
+        }
+
+        nameLayout.setOnClickListener { onRoutineClick(routine) }
+        row.addView(nameLayout)
 
         for (i in 0..3) {
             if (routine.isMeasurable) {
