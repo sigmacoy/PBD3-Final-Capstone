@@ -276,10 +276,6 @@ class CreateYesNoActivity : AppCompatActivity() {
             Toast.makeText(this, "Enter routine name", Toast.LENGTH_SHORT).show()
             return
         }
-        if (question.isEmpty()) {
-            Toast.makeText(this, "Enter question", Toast.LENGTH_SHORT).show()
-            return
-        }
 
         if (editingRoutineId != -1L) {
             val index = InMemoryDB.routines.indexOfFirst { it.id == editingRoutineId }

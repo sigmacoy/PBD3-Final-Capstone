@@ -59,30 +59,34 @@ class HistoryWidget : AppWidgetProvider() {
             routine: com.example.pbd3_final_capstone.screens.home.Routine,
             accentColor: Int
         ): Bitmap {
-            // 3-cell wide × 2-cell tall → 330dp × 180dp → 2x = 660 × 360 px
-            val W = 660
-            val H = 360
+            // 1. High-res canvas for crisp scaling
+            val W = 1000
+            val H = 500
             val bmp    = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bmp)
 
-            // Background
             canvas.drawColor(Color.parseColor("#1E1E1E"))
 
-            val weeks   = 10   // columns
-            val numDays = 7    // rows (Sun=0 … Sat=6)
-            val padL    = 44f  // left margin for day labels
-            val padT    = 26f  // top margin for month labels
-            val padB    = 8f
+            val weeks   = 10
+            val numDays = 7
+
+            // 2. MINIMIZE PADDING to stretch the grid to the very edges
+            val padL    = 60f  // Just enough for day names (Sun, Mon)
+            val padT    = 45f  // Just enough for month names (Jan, Feb)
+            val padB    = 10f  // Almost zero bottom margin
+
             val cellW   = (W - padL) / weeks
             val cellH   = (H - padT - padB) / numDays
 
-            // Paints
+            // 3. MAXIMIZE TEXT SIZE for readability
             val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = Color.LTGRAY; textSize = 20f; typeface = Typeface.DEFAULT
+                color = Color.LTGRAY; textSize = 32f; typeface = Typeface.DEFAULT
             }
             val datePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = Color.WHITE; textSize = 17f; textAlign = Paint.Align.CENTER
+                color = Color.WHITE; textSize = 28f; textAlign = Paint.Align.CENTER
             }
+
+
             val filledPaint  = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = accentColor }
             val emptyPaint   = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#3A3A3A") }
             val todayRingPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -135,7 +139,7 @@ class HistoryWidget : AppWidgetProvider() {
                 }
                 val month = monthFmt.format(weekStart.time)
                 if (month != lastMonth) {
-                    canvas.drawText(month, padL + col * cellW + 4f, 20f, labelPaint)
+                    canvas.drawText(month, padL + col * cellW + 15f, padT - 10f, labelPaint)
                     lastMonth = month
                 }
             }

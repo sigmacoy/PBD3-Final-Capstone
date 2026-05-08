@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:padding="8dp"
+    android:padding="10dp"
     android:background="@drawable/widget_bg_rounded">
 
     <TextView
@@ -12,6 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:textColor="#FFFFFF"
         android:textSize="13sp"
         android:textStyle="bold"
@@ -22,39 +23,9 @@
     <ImageView
         android:id="@+id/widget_history_canvas"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true" />
 
 </LinearLayout>
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    android:layout_width="match_parent"-->
-<!--    android:layout_height="match_parent"-->
-<!--    android:orientation="vertical"-->
-<!--    android:gravity="center_horizontal"-->
-<!--    android:padding="8dp"-->
-<!--    android:background="@drawable/widget_bg_rounded">-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/widget_history_label"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="4dp"-->
-<!--        android:textColor="#FFFFFF"-->
-<!--        android:textSize="13sp"-->
-<!--        android:textStyle="bold"-->
-<!--        android:maxLines="1"-->
-<!--        android:ellipsize="end"-->
-<!--        android:text="Routine" />-->
-
-<!--    <ImageView-->
-<!--        android:id="@+id/widget_history_canvas"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:layout_weight="1"-->
-<!--        android:scaleType="fitCenter"-->
-<!--        android:adjustViewBounds="true" />-->
-
-<!--</LinearLayout>-->

@@ -130,7 +130,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         android:text="Yes/No"
-                        android:textColor="#BDBDBD"
+                        android:textColor="#FFFFFF"
                         android:textSize="14sp" />
 
                     <!-- Question -->
@@ -149,7 +149,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         android:text="How many miles did you run today?"
-                        android:textColor="#BDBDBD"
+                        android:textColor="#FFFFFF"
                         android:textSize="14sp" />
 
                     <!-- Unit (if measurable) -->
@@ -170,7 +170,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         android:text="miles"
-                        android:textColor="#BDBDBD"
+                        android:textColor="#FFFFFF"
                         android:textSize="14sp"
                         android:visibility="gone" />
 
@@ -190,7 +190,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         android:text="15 miles"
-                        android:textColor="#BDBDBD"
+                        android:textColor="#FFFFFF"
                         android:textSize="14sp" />
 
                     <!-- Frequency -->
@@ -209,7 +209,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         android:text="Every day"
-                        android:textColor="#BDBDBD"
+                        android:textColor="#FFFFFF"
                         android:textSize="14sp" />
 
                     <!-- Reminder -->
@@ -228,7 +228,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         android:text="8:00 AM"
-                        android:textColor="#BDBDBD"
+                        android:textColor="#FFFFFF"
                         android:textSize="14sp" />
 
                     <!-- Notes (if exists) -->
@@ -248,7 +248,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text=""
-                        android:textColor="#BDBDBD"
+                        android:textColor="#FFFFFF"
                         android:textSize="14sp"
                         android:visibility="gone" />
 

@@ -1,8 +1,15 @@
 TODO:
-1.  res/drawable/ (for vector XML icons, or PNG icons in a single density)
-Or res/mipmap-*/ (for launcher icons)
 
-2. Routine Calendar on Summary, the AM or PM is not displaying also on the Summary....
+1. Routine Calendar on Summary, the AM or PM is not displaying also on the Summary....
 
-3. When pressing Edit on a Routine, change the header into Edit Habit - Measurable
+2. When pressing Edit on a Routine, change the header into Edit Habit - Measurable
 And the placeholders are all messed up, its all top values on the real values....
+Ofcourse the current values must be displayed there, the user will change that, so ofc no more placeholders bro....
+
+3. Frequency option, alertDialog screen
+
+4. Checkmark, i checked May 8, but it checked May 5....
+(Present is at the rightmost - CURRENT, FOLLOW THIS STRICTLY)
+
+5. When inputting values on Create Routines, the text is not enough,
+the display placeholder however is perfect...
