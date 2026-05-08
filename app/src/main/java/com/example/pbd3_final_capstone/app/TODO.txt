@@ -1,16 +1,9 @@
 TODO:
 
-1. Checkmark, i checked May 8, but it checked May 5....
-   (Present day is at the rightmost - CURRENT, FOLLOW THIS STRICTLY)
+1.
 
 
-2. Display name should not have the unit on it. The unit must be below of the user input number for
-Measurable...
-(must be centered below of the number, and must have variable fontsize for the unit font size)
+2.
 
 
-3.
-
-
-4.
 

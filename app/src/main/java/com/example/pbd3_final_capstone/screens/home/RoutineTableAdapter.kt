@@ -52,8 +52,8 @@ class RoutineTableAdapter(
         val dateFormat = SimpleDateFormat("d", Locale.getDefault())
         val days = mutableListOf<Pair<String, String>>()
         val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -3)
 
+        // Start from today, go backwards
         for (i in 0..3) {
             days.add(
                 Pair(
@@ -61,8 +61,9 @@ class RoutineTableAdapter(
                     dateFormat.format(calendar.time)
                 )
             )
-            calendar.add(Calendar.DAY_OF_YEAR, 1)
+            calendar.add(Calendar.DAY_OF_YEAR, -1)  // Move backwards
         }
+        days.reverse()  // Reverse to show oldest to newest left to right
 
         val headerRow = TableRow(activity).apply { setPadding(0, 0, 0, 0) }
         headerRow.addView(

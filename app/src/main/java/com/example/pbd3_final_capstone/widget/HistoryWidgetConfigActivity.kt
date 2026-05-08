@@ -37,3 +37,4 @@ class HistoryWidgetConfigActivity : AppCompatActivity() {
         finish()
     }
 }
+

@@ -99,25 +99,22 @@ class HistoryWidget : AppWidgetProvider() {
 
             // Build checked date set from stored checkStates
             val checkedDates = mutableSetOf<String>()
-//            routine.checkStates.forEachIndexed { offset, checked ->
-//                if (checked) {
-//                    val cal = Calendar.getInstance()
-//                    cal.add(Calendar.DAY_OF_YEAR, -offset)
-//                    checkedDates.add(fmt.format(cal.time))
-//                }
-//            }
             for (offset in 0..3) {
                 val isDone = if (routine.isMeasurable) {
                     val currentCount = routine.inputValues[offset].toIntOrNull() ?: 0
                     val target = routine.target.toIntOrNull() ?: 1
                     currentCount >= target
-                } else {
-                    routine.checkStates[offset]
-                }
+                } else routine.checkStates[offset]
 
                 if (isDone) {
                     val cal = Calendar.getInstance()
-                    cal.add(Calendar.DAY_OF_YEAR, -offset)
+
+                    // index 0 = 3 days ago
+                    // index 1 = 2 days ago
+                    // index 2 = yesterday
+                    // index 3 = today
+                    cal.add(Calendar.DAY_OF_YEAR, offset - 3)
+
                     checkedDates.add(fmt.format(cal.time))
                 }
             }
@@ -188,10 +185,6 @@ class HistoryWidget : AppWidgetProvider() {
         }
     }
 
-//    override fun onUpdate(context: Context, mgr: AppWidgetManager, ids: IntArray) {
-//        ids.forEach { updateWidget(context, mgr, it) }
-//    }
-
     override fun onUpdate(context: Context, mgr: AppWidgetManager, ids: IntArray) {
         // Must load the fresh database before drawing!
         RoutineRepository.load(context)
@@ -213,3 +206,4 @@ class HistoryWidget : AppWidgetProvider() {
         prefs.apply()
     }
 }
+

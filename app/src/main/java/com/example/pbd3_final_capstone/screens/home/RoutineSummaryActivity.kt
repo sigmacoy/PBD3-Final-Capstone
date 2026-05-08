@@ -206,13 +206,16 @@ class RoutineSummaryActivity : AppCompatActivity() {
                 val currentCount = routine.inputValues[offset].toIntOrNull() ?: 0
                 val target = routine.target.toIntOrNull() ?: 1
                 currentCount >= target
-            } else {
-                routine.checkStates[offset]
-            }
-
+            } else routine.checkStates[offset]
             if (isDone) {
                 val cal = Calendar.getInstance()
-                cal.add(Calendar.DAY_OF_YEAR, -offset)
+
+                // index 0 = 3 days ago
+                // index 1 = 2 days ago
+                // index 2 = yesterday
+                // index 3 = today
+                cal.add(Calendar.DAY_OF_YEAR, offset - 3)
+
                 checkedDates.add(fmt.format(cal.time))
             }
         }
@@ -276,6 +279,6 @@ class RoutineSummaryActivity : AppCompatActivity() {
         findViewById<ImageView>(R.id.widget_history_canvas).setImageBitmap(bmp)
         findViewById<TextView>(R.id.widget_history_label).text = "History"
     }
-
-
 }
+
+

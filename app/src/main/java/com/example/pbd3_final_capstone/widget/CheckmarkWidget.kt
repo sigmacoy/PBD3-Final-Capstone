@@ -11,23 +11,22 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import com.example.pbd3_final_capstone.R
 import com.example.pbd3_final_capstone.data.RoutineRepository
+import java.util.Calendar
 
 class CheckmarkWidget : AppWidgetProvider() {
 
     companion object {
-        const val ACTION_TOGGLE       = "com.example.pbd3_final_capstone.CHECKMARK_TOGGLE"
+        const val ACTION_TOGGLE = "com.example.pbd3_final_capstone.CHECKMARK_TOGGLE"
         const val ACTION_HOME_REFRESH = "com.example.pbd3_final_capstone.HOME_REFRESH"
-        const val EXTRA_ROUTINE_NAME  = "routine_name"
+        const val EXTRA_ROUTINE_NAME = "routine_name"
 
         private val colorMap = mapOf(
-            "red"    to "#F44336", "orange" to "#FF9800", "yellow" to "#FFEB3B",
-            "green"  to "#4CAF50", "blue"   to "#2196F3", "purple" to "#9C27B0"
-            // IGNORE PINK
+            "red" to "#F44336", "orange" to "#FF9800", "yellow" to "#FFEB3B",
+            "green" to "#4CAF50", "blue" to "#2196F3", "purple" to "#9C27B0"
         )
 
         fun refreshAll(context: Context) {
@@ -38,8 +37,6 @@ class CheckmarkWidget : AppWidgetProvider() {
         }
 
         fun updateWidget(context: Context, mgr: AppWidgetManager, appWidgetId: Int) {
-            Log.d("WIDGET_DEBUG", "updateWidget called ID=$appWidgetId")
-
             val views = RemoteViews(context.packageName, R.layout.widget_checkmark)
             val prefs = context.getSharedPreferences("widget_bindings", Context.MODE_PRIVATE)
             val binding = prefs.getString(appWidgetId.toString(), null)
@@ -64,19 +61,19 @@ class CheckmarkWidget : AppWidgetProvider() {
                 Color.parseColor(colorMap[routine.color] ?: "#2196F3")
             } catch (e: Exception) { Color.BLUE }
 
+            val todayIndex = 3
+
             if (routine.isMeasurable) {
-                val currentCount = routine.inputValues[0].toIntOrNull() ?: 0
+                val currentCount = routine.inputValues[todayIndex].toIntOrNull() ?: 0
                 val target = routine.target.toIntOrNull() ?: 1
                 val achieved = currentCount >= target
 
-                // UI for Measurable
                 views.setInt(R.id.widget_checkmark_root, "setBackgroundColor", if (achieved) resolvedColor else Color.parseColor("#2A2A2A"))
                 views.setViewVisibility(R.id.widget_checkmark_icon, View.GONE)
                 views.setViewVisibility(R.id.widget_checkmark_count, View.VISIBLE)
                 views.setTextViewText(R.id.widget_checkmark_count, currentCount.toString())
                 views.setImageViewBitmap(R.id.widget_checkmark_circle, drawRingBitmap(240, 18f, if (achieved) Color.WHITE else Color.parseColor("#888888")))
 
-                // INTENT: Open App to Home Menu directly
                 val launchIntent = Intent(context, com.example.pbd3_final_capstone.screens.home.HomeActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                     putExtra("FOCUS_ROUTINE", routine.name)
@@ -90,8 +87,7 @@ class CheckmarkWidget : AppWidgetProvider() {
                 views.setOnClickPendingIntent(R.id.widget_checkmark_label, pi)
 
             } else {
-                // UI for Yes/No
-                val checked = routine.checkStates[0]
+                val checked = routine.checkStates[todayIndex]
                 views.setInt(R.id.widget_checkmark_root, "setBackgroundColor", if (checked) resolvedColor else Color.parseColor("#2A2A2A"))
                 views.setViewVisibility(R.id.widget_checkmark_icon, View.VISIBLE)
                 views.setViewVisibility(R.id.widget_checkmark_count, View.GONE)
@@ -99,7 +95,6 @@ class CheckmarkWidget : AppWidgetProvider() {
                 views.setInt(R.id.widget_checkmark_icon, "setColorFilter", Color.WHITE)
                 views.setImageViewBitmap(R.id.widget_checkmark_circle, drawRingBitmap(240, 18f, if (checked) Color.WHITE else Color.parseColor("#888888")))
 
-                // INTENT: Background Broadcast
                 val toggleIntent = Intent(context, CheckmarkWidget::class.java).apply {
                     action = ACTION_TOGGLE
                     putExtra(EXTRA_ROUTINE_NAME, routineName)
@@ -115,17 +110,16 @@ class CheckmarkWidget : AppWidgetProvider() {
 
             views.setTextViewText(R.id.widget_checkmark_label, routine.name)
             mgr.updateAppWidget(appWidgetId, views)
-            Log.d("WIDGET_DEBUG", "Widget UI applied successfully")
         }
 
         private fun drawRingBitmap(sizePx: Int, strokePx: Float, color: Int): Bitmap {
-            val bmp    = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+            val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bmp)
-            val paint  = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                this.color       = color
-                style            = Paint.Style.STROKE
-                strokeWidth      = strokePx
-                strokeCap        = Paint.Cap.ROUND
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                this.color = color
+                style = Paint.Style.STROKE
+                strokeWidth = strokePx
+                strokeCap = Paint.Cap.ROUND
             }
             val inset = strokePx / 2f
             canvas.drawArc(
@@ -138,43 +132,22 @@ class CheckmarkWidget : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        Log.d("WIDGET_DEBUG", "onReceive: ${intent.action}")
-
-//        if (intent.action == ACTION_TOGGLE) {
-//            val routineName = intent.getStringExtra(EXTRA_ROUTINE_NAME) ?: return
-//
-//            RoutineRepository.load(context)
-//            val routine = RoutineRepository.getByName(routineName) ?: return
-//
-//            routine.checkStates[0] = !routine.checkStates[0]
-//            RoutineRepository.save(context)
-//
-//            val mgr = AppWidgetManager.getInstance(context)
-//            val ids = mgr.getAppWidgetIds(ComponentName(context, CheckmarkWidget::class.java))
-//            ids.forEach { id -> updateWidget(context, mgr, id) }
-//
-//            context.sendBroadcast(Intent(ACTION_HOME_REFRESH).apply {
-//                setPackage(context.packageName)
-//            })
-//        }
 
         if (intent.action == ACTION_TOGGLE) {
             val routineName = intent.getStringExtra(EXTRA_ROUTINE_NAME) ?: return
-
             RoutineRepository.load(context)
             val routine = RoutineRepository.getByName(routineName) ?: return
 
-            // Toggle and Save
-            routine.checkStates[0] = !routine.checkStates[0]
+            // Index 3 = today
+            val todayIndex = 3
+            routine.checkStates[todayIndex] = !routine.checkStates[todayIndex]
             RoutineRepository.save(context)
 
             val mgr = AppWidgetManager.getInstance(context)
 
-            // 1. Refresh all Checkmark Widgets
             val checkmarkIds = mgr.getAppWidgetIds(ComponentName(context, CheckmarkWidget::class.java))
             checkmarkIds.forEach { id -> updateWidget(context, mgr, id) }
 
-            // 2. ⚠️ THE FIX: Broadcast a refresh command to all History Widgets
             val historyIds = mgr.getAppWidgetIds(ComponentName(context, HistoryWidget::class.java))
             if (historyIds.isNotEmpty()) {
                 val historyUpdateIntent = Intent(context, HistoryWidget::class.java).apply {
@@ -184,7 +157,6 @@ class CheckmarkWidget : AppWidgetProvider() {
                 context.sendBroadcast(historyUpdateIntent)
             }
 
-            // 3. Refresh Home Screen Activity
             context.sendBroadcast(Intent(ACTION_HOME_REFRESH).apply {
                 setPackage(context.packageName)
             })
