@@ -66,17 +66,20 @@ class CreateMeasurableActivity : AppCompatActivity() {
         findViewById<ImageView>(R.id.btnBack).setOnClickListener { finish() }
 
         btnReminder.setOnClickListener {
-            TimePickerDialog(
-                this,
-                { _, hour, minute ->
-                    reminderHour = hour
-                    reminderMinute = minute
-                    updateReminderText()
-                },
-                reminderHour,
-                reminderMinute,
-                false
-            ).show()
+            val picker = com.google.android.material.timepicker.MaterialTimePicker.Builder()
+                .setHour(reminderHour)
+                .setMinute(reminderMinute)
+                .setTitleText("Select Reminder Time")
+                .setInputMode(com.google.android.material.timepicker.MaterialTimePicker.INPUT_MODE_CLOCK)
+                .build()
+
+            picker.addOnPositiveButtonClickListener {
+                reminderHour = picker.hour
+                reminderMinute = picker.minute
+                updateReminderText()
+            }
+
+            picker.show(supportFragmentManager, "time_picker")
         }
 
         btnFrequency.setOnClickListener {
