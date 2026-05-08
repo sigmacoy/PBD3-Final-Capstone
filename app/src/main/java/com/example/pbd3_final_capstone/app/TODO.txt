@@ -1,15 +1,24 @@
 TODO:
 
-1. Routine Calendar on Summary, the AM or PM is not displaying also on the Summary....
+1. why is there purple color in create routine, the timer pop up alertdialog must be green
+related to save button, not purple.
+Like when click an EditText, it is purple cursoring blinking blinking, it should have been WHITE
+Its the same in create measurable and yesno
 
-2. When pressing Edit on a Routine, change the header into Edit Habit - Measurable
-And the placeholders are all messed up, its all top values on the real values....
-Ofcourse the current values must be displayed there, the user will change that, so ofc no more placeholders bro....
+2.
+
 
 3. Frequency option, alertDialog screen
+- DONE
+
 
 4. Checkmark, i checked May 8, but it checked May 5....
-(Present is at the rightmost - CURRENT, FOLLOW THIS STRICTLY)
+(Present day is at the rightmost - CURRENT, FOLLOW THIS STRICTLY)
+
 
 5. When inputting values on Create Routines, the text is not enough,
 the display placeholder however is perfect...
+- DONE
+
+6. I hate that i need to tap twice for btnFrequency for the screen to appear
+- DONE

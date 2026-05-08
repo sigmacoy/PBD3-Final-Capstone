@@ -1,6 +1,9 @@
 package com.example.pbd3_final_capstone.screens.home
 
+import android.app.AlertDialog
 import android.app.TimePickerDialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -17,7 +20,7 @@ class CreateYesNoActivity : AppCompatActivity() {
     private lateinit var inputName: EditText
     private lateinit var inputQuestion: EditText
     private lateinit var inputNotes: EditText
-    private lateinit var btnFrequency: AutoCompleteTextView
+    private lateinit var btnFrequency: TextView
     private lateinit var btnReminder: MaterialButton
     private lateinit var btnSave: Button
     private lateinit var colorPreview: View
@@ -92,13 +95,22 @@ class CreateYesNoActivity : AppCompatActivity() {
 
     private fun showTargetTypeDialog() {
         val items = arrayOf("At least", "At most")
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Select Target Type")
-            .setItems(items) { _, which ->
+
+        val adapter = ArrayAdapter<String>(
+            this,
+            R.layout.dialog_list_item,
+            items
+        )
+
+        val dialog = AlertDialog.Builder(this)
+            .setAdapter(adapter) { _, which ->
                 targetType = if (which == 0) "at_least" else "at_most"
                 inputTargetType.text = items[which]
             }
-            .show()
+            .create()
+
+        dialog.show()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#2A2A2A")))
     }
 
     private fun updateReminderText() {
@@ -113,116 +125,99 @@ class CreateYesNoActivity : AppCompatActivity() {
         )
     }
 
+    //    When clicking btnFrequency, it will open an AlertDialog with this layout/dialog_freq_opt_yesno.xml file
     private fun showFrequencyDialog() {
-        val items = arrayOf(
-            "Every day",
-            "Every X days",
-            "X times per week",
-            "X times per month",
-            "X times in Y days"
+        val dialogView = layoutInflater.inflate(R.layout.dialog_freq_opt_yesno, null)
+
+        val radioEveryDay = dialogView.findViewById<RadioButton>(R.id.radio_every_day)
+        val radioEveryXDays = dialogView.findViewById<RadioButton>(R.id.radio_every_x_days)
+        val radioTimesPerWeek = dialogView.findViewById<RadioButton>(R.id.radio_times_per_week)
+        val radioTimesPerMonth = dialogView.findViewById<RadioButton>(R.id.radio_times_per_month)
+        val radioTimesInDays = dialogView.findViewById<RadioButton>(R.id.radio_times_in_days)
+
+        val editEveryXDays = dialogView.findViewById<EditText>(R.id.edit_every_x_days)
+        val editTimesPerWeek = dialogView.findViewById<EditText>(R.id.edit_times_per_week)
+        val editTimesPerMonth = dialogView.findViewById<EditText>(R.id.edit_times_per_month)
+        val editTimesInDaysX = dialogView.findViewById<EditText>(R.id.edit_times_in_days_x)
+        val editTimesInDaysY = dialogView.findViewById<EditText>(R.id.edit_times_in_days_y)
+
+        val btnSaveDialog = dialogView.findViewById<TextView>(R.id.btn_save)
+
+        val radios = listOf(
+            radioEveryDay,
+            radioEveryXDays,
+            radioTimesPerWeek,
+            radioTimesPerMonth,
+            radioTimesInDays
         )
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Select Frequency")
-            .setItems(items) { _, which ->
-                when (which) {
-                    0 -> {
-                        frequencyType = "daily"
-                        btnFrequency.setText("Every day")
-                    }
-                    1 -> {
-                        frequencyType = "every_x_days"
-                        showNumberPickerDialog("Enter number of days", 2, 30) { value ->
-                            frequencyValue1 = value
-                            btnFrequency.setText("Every $value days")
-                        }
-                    }
-                    2 -> {
-                        frequencyType = "times_per_week"
-                        showNumberPickerDialog("Enter times per week", 1, 7) { value ->
-                            frequencyValue1 = value
-                            btnFrequency.setText("$value times per week")
-                        }
-                    }
-                    3 -> {
-                        frequencyType = "times_per_month"
-                        showNumberPickerDialog("Enter times per month", 1, 31) { value ->
-                            frequencyValue1 = value
-                            btnFrequency.setText("$value times per month")
-                        }
-                    }
-                    4 -> {
-                        frequencyType = "times_in_days"
-                        showTwoNumberPickerDialog("Times in Days") { times, days ->
-                            frequencyValue1 = times
-                            frequencyValue2 = days
-                            btnFrequency.setText("$times times in $days days")
-                        }
-                    }
+
+        fun selectRadio(selected: RadioButton) {
+            radios.forEach { it.isChecked = false }
+            selected.isChecked = true
+        }
+
+        radioEveryDay.setOnClickListener { selectRadio(radioEveryDay) }
+        radioEveryXDays.setOnClickListener { selectRadio(radioEveryXDays) }
+        radioTimesPerWeek.setOnClickListener { selectRadio(radioTimesPerWeek) }
+        radioTimesPerMonth.setOnClickListener { selectRadio(radioTimesPerMonth) }
+        radioTimesInDays.setOnClickListener { selectRadio(radioTimesInDays) }
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        btnSaveDialog.setOnClickListener {
+
+            when {
+                radioEveryDay.isChecked -> {
+                    frequencyType = "daily"
+                    btnFrequency.setText("Every day")
+                }
+
+                radioEveryXDays.isChecked -> {
+                    frequencyType = "every_x_days"
+                    frequencyValue1 =
+                        editEveryXDays.text.toString().toIntOrNull() ?: 3
+
+                    btnFrequency.setText("Every $frequencyValue1 days")
+                }
+
+                radioTimesPerWeek.isChecked -> {
+                    frequencyType = "times_per_week"
+                    frequencyValue1 =
+                        editTimesPerWeek.text.toString().toIntOrNull() ?: 3
+
+                    btnFrequency.setText("$frequencyValue1 times per week")
+                }
+
+                radioTimesPerMonth.isChecked -> {
+                    frequencyType = "times_per_month"
+                    frequencyValue1 =
+                        editTimesPerMonth.text.toString().toIntOrNull() ?: 10
+
+                    btnFrequency.setText("$frequencyValue1 times per month")
+                }
+
+                radioTimesInDays.isChecked -> {
+                    frequencyType = "times_in_days"
+
+                    frequencyValue1 =
+                        editTimesInDaysX.text.toString().toIntOrNull() ?: 3
+
+                    frequencyValue2 =
+                        editTimesInDaysY.text.toString().toIntOrNull() ?: 10
+
+                    btnFrequency.setText(
+                        "$frequencyValue1 times in $frequencyValue2 days"
+                    )
                 }
             }
-            .show()
-    }
 
-    private fun showNumberPickerDialog(title: String, min: Int, max: Int, onResult: (Int) -> Unit) {
-        val numberPicker = NumberPicker(this).apply {
-            this.minValue = min
-            this.maxValue = max
-            this.value = min
+            dialog.dismiss()
         }
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle(title)
-            .setView(numberPicker)
-            .setPositiveButton("OK") { _, _ ->
-                onResult(numberPicker.value)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun showTwoNumberPickerDialog(title: String, onResult: (Int, Int) -> Unit) {
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(50, 20, 50, 20)
-        }
-
-        val timesLabel = TextView(this).apply {
-            text = "Times:"
-            textSize = 16f
-        }
-        val timesPicker = NumberPicker(this).apply {
-            minValue = 1
-            maxValue = 30
-            value = 5
-        }
-
-        val daysLabel = TextView(this).apply {
-            text = "Days:"
-            textSize = 16f
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 20 }
-        }
-        val daysPicker = NumberPicker(this).apply {
-            minValue = 1
-            maxValue = 90
-            value = 7
-        }
-
-        layout.addView(timesLabel)
-        layout.addView(timesPicker)
-        layout.addView(daysLabel)
-        layout.addView(daysPicker)
-
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle(title)
-            .setView(layout)
-            .setPositiveButton("OK") { _, _ ->
-                onResult(timesPicker.value, daysPicker.value)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        dialog.show()
     }
 
     private fun showColorPicker() {

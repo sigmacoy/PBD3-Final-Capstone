@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_weight="1"
-            android:text="Create Habit - Y/N"
+            android:text="Create Routine - Y/N"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -88,7 +88,7 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputName"
                             android:layout_width="match_parent"
-                            android:layout_height="40dp"
+                            android:layout_height="wrap_content"
                             android:hint="e.g. Run"
                             android:textColor="#FFFFFF"
                             android:textColorHint="#FFFFFF" />
@@ -117,7 +117,8 @@
                         app:cardBackgroundColor="#2A2A2A"
                         app:cardElevation="0dp"
                         app:strokeColor="#4CAF50"
-                        app:strokeWidth="1dp">
+                        app:strokeWidth="1dp"
+                        android:layout_marginTop="9dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -163,7 +164,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/inputQuestion"
                         android:layout_width="match_parent"
-                        android:layout_height="40dp"
+                        android:layout_height="wrap_content"
                         android:hint="e.g. How many miles did you run today?"
                         android:textColor="#FFFFFF"
                         android:textColorHint="#FFFFFF" />
@@ -188,26 +189,18 @@
                 android:textColorHint="#9E9E9E"
                 app:boxBackgroundColor="#2A2A2A"
                 android:paddingBottom="15dp">
-                <!-- User presses this
-                 It has 5 radioButtons user must choose
-                 o Every day
-                 o Every _____ days
-                 o ____ times per week
-                 o ____ times per month
-                 o ____ times in _____ days
-                 SAVE to the bottom-right of the 2A2A2A background color -->
-                <AutoCompleteTextView
+                <TextView
                     android:id="@+id/btnFrequency"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    android:text="Every day"
-                    android:textColor="#9E9E9E"
-                    android:textSize="16sp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/border_box"
+                    android:gravity="center_vertical"
                     android:paddingStart="17dp"
                     android:paddingEnd="8dp"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp" />
+                    android:text="Every day"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -241,7 +234,7 @@
                         android:inputType="none"
                         android:text="At least"
                         android:textSize="16sp"
-                        android:textColor="#9E9E9E"
+                        android:textColor="#FFFFFF"
                         android:paddingStart="17dp"
                         android:paddingEnd="8dp"
                         app:strokeColor="#4CAF50"
@@ -279,7 +272,7 @@
                         android:inputType="none"
                         android:text="Off"
                         android:textSize="16sp"
-                        android:textColor="#9E9E9E"
+                        android:textColor="#FFFFFF"
                         app:strokeColor="#4CAF50"
                         app:backgroundTint="#2A2A2A"
                         android:paddingStart="17dp"

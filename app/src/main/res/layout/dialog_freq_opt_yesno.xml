@@ -7,21 +7,11 @@
     android:orientation="vertical"
     android:padding="24dp">
 
-
     <RadioGroup
+        android:id="@+id/radio_group_freq"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
-        <RadioButton
-            android:id="@+id/radio_every_day"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:checked="true"
-            android:text="Every day"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,11 +20,33 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatRadioButton
+            <RadioButton
+                android:id="@+id/radio_every_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="#BDBDBD" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Every day"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <RadioButton
                 android:id="@+id/radio_every_x_days"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:buttonTint="#BDBDBD" />
+                android:buttonTint="#BDBDBD" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -44,7 +56,6 @@
                 android:textColor="#FFFFFF"
                 android:textSize="16sp" />
 
-<!--            User can edit this text -->
             <EditText
                 android:id="@+id/edit_every_x_days"
                 android:layout_width="48dp"
@@ -74,13 +85,12 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatRadioButton
+            <RadioButton
                 android:id="@+id/radio_times_per_week"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:buttonTint="#BDBDBD" />
+                android:buttonTint="#BDBDBD" />
 
-            <!--            User can edit this text -->
             <EditText
                 android:id="@+id/edit_times_per_week"
                 android:layout_width="48dp"
@@ -110,14 +120,12 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatRadioButton
+            <RadioButton
                 android:id="@+id/radio_times_per_month"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:buttonTint="#BDBDBD" />
+                android:buttonTint="#BDBDBD" />
 
-
-            <!--            User can edit this text -->
             <EditText
                 android:id="@+id/edit_times_per_month"
                 android:layout_width="48dp"
@@ -147,13 +155,12 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatRadioButton
+            <RadioButton
                 android:id="@+id/radio_times_in_days"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:buttonTint="#BDBDBD"/>
+                android:buttonTint="#BDBDBD"/>
 
-            <!--            User can edit this text -->
             <EditText
                 android:id="@+id/edit_times_in_days_x"
                 android:layout_width="48dp"
@@ -164,7 +171,7 @@
                 android:gravity="center"
                 android:inputType="number"
                 android:padding="8dp"
-                android:text="3"
+                android:text="6"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp" />
 
@@ -175,7 +182,6 @@
                 android:textColor="#FFFFFF"
                 android:textSize="16sp" />
 
-            <!--            User can edit this text -->
             <EditText
                 android:id="@+id/edit_times_in_days_y"
                 android:layout_width="48dp"
@@ -186,7 +192,7 @@
                 android:gravity="center"
                 android:inputType="number"
                 android:padding="8dp"
-                android:text="10"
+                android:text="7"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp" />
 

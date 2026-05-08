@@ -1,6 +1,9 @@
 package com.example.pbd3_final_capstone.screens.home
 
+import android.app.AlertDialog
 import android.app.TimePickerDialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +11,7 @@ import com.example.pbd3_final_capstone.R
 import com.example.pbd3_final_capstone.data.RoutineRepository
 import java.util.Locale
 import android.view.View
+import android.view.ViewGroup
 import com.google.android.material.button.MaterialButton
 
 
@@ -17,7 +21,7 @@ class CreateMeasurableActivity : AppCompatActivity() {
     private lateinit var inputUnit: EditText
     private lateinit var inputTarget: EditText
     private lateinit var inputNotes: EditText
-    private lateinit var btnFrequency: AutoCompleteTextView
+    private lateinit var btnFrequency: TextView
     private lateinit var btnReminder: MaterialButton
     private lateinit var btnSave: Button
     private lateinit var colorPreview: View
@@ -106,125 +110,55 @@ class CreateMeasurableActivity : AppCompatActivity() {
 
     private fun showTargetTypeDialog() {
         val items = arrayOf("At least", "At most")
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Select Target Type")
-            .setItems(items) { _, which ->
+
+        val adapter = ArrayAdapter<String>(
+            this,
+            R.layout.dialog_list_item,
+            items
+        )
+
+        val dialog = AlertDialog.Builder(this)
+            .setAdapter(adapter) { _, which ->
                 targetType = if (which == 0) "at_least" else "at_most"
                 inputTargetType.text = items[which]
             }
-            .show()
+            .create()
+
+        dialog.show()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#2A2A2A")))
     }
 
+    //    When Create Measurable, user will only pick these three choices...
     private fun showFrequencyDialog() {
-        val items = arrayOf(
-            "Every day",
-            "Every X days",
-            "X times per week",
-            "X times per month",
-            "X times in Y days"
+        val items = arrayOf("Every day", "Every week", "Every month")
+
+        val adapter = ArrayAdapter<String>(
+            this,
+            R.layout.dialog_list_item,
+            items
         )
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Select Frequency")
-            .setItems(items) { _, which ->
+
+        val dialog = AlertDialog.Builder(this)
+            .setAdapter(adapter) { _, which ->
                 when (which) {
                     0 -> {
                         frequencyType = "daily"
                         btnFrequency.setText("Every day")
                     }
                     1 -> {
-                        frequencyType = "every_x_days"
-                        showNumberPickerDialog("Enter number of days", 2, 30) { value ->
-                            frequencyValue1 = value
-                            btnFrequency.setText("Every $value days")
-                        }
+                        frequencyType = "weekly"
+                        btnFrequency.setText("Every week")
                     }
                     2 -> {
-                        frequencyType = "times_per_week"
-                        showNumberPickerDialog("Enter times per week", 1, 7) { value ->
-                            frequencyValue1 = value
-                            btnFrequency.setText("$value times per week")
-                        }
-                    }
-                    3 -> {
-                        frequencyType = "times_per_month"
-                        showNumberPickerDialog("Enter times per month", 1, 31) { value ->
-                            frequencyValue1 = value
-                            btnFrequency.setText("$value times per month")
-                        }
-                    }
-                    4 -> {
-                        frequencyType = "times_in_days"
-                        showTwoNumberPickerDialog("Times in Days") { times, days ->
-                            frequencyValue1 = times
-                            frequencyValue2 = days
-                            btnFrequency.setText("$times times in $days days")
-                        }
+                        frequencyType = "monthly"
+                        btnFrequency.setText("Every month")
                     }
                 }
             }
-            .show()
-    }
+            .create()
 
-    private fun showNumberPickerDialog(title: String, min: Int, max: Int, onResult: (Int) -> Unit) {
-        val numberPicker = NumberPicker(this).apply {
-            this.minValue = min
-            this.maxValue = max
-            this.value = min
-        }
-
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle(title)
-            .setView(numberPicker)
-            .setPositiveButton("OK") { _, _ ->
-                onResult(numberPicker.value)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun showTwoNumberPickerDialog(title: String, onResult: (Int, Int) -> Unit) {
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(50, 20, 50, 20)
-        }
-
-        val timesLabel = TextView(this).apply {
-            text = "Times:"
-            textSize = 16f
-        }
-        val timesPicker = NumberPicker(this).apply {
-            minValue = 1
-            maxValue = 30
-            value = 5
-        }
-
-        val daysLabel = TextView(this).apply {
-            text = "Days:"
-            textSize = 16f
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 20 }
-        }
-        val daysPicker = NumberPicker(this).apply {
-            minValue = 1
-            maxValue = 90
-            value = 7
-        }
-
-        layout.addView(timesLabel)
-        layout.addView(timesPicker)
-        layout.addView(daysLabel)
-        layout.addView(daysPicker)
-
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle(title)
-            .setView(layout)
-            .setPositiveButton("OK") { _, _ ->
-                onResult(timesPicker.value, daysPicker.value)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        dialog.show()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#2A2A2A")))
     }
 
     private fun showColorPicker() {
@@ -280,10 +214,6 @@ class CreateMeasurableActivity : AppCompatActivity() {
 
         if (name.isEmpty()) {
             Toast.makeText(this, "Enter routine name", Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (question.isEmpty()) {
-            Toast.makeText(this, "Enter question", Toast.LENGTH_SHORT).show()
             return
         }
 
