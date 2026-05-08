@@ -83,7 +83,12 @@
 <!--        Go straight directly to the home menu, for quick debug only.... -->
 <!--        <activity android:name=".screens.home.HomeActivity" android:exported="false" />-->
 
-        <activity android:name=".screens.home.RoutineEditorActivity" />
+        <activity android:name=".screens.home.CreateMeasurableActivity" />
+        <activity android:name=".screens.home.CreateYesNoActivity" />
+
+        <activity
+            android:name=".screens.home.RoutineSummaryActivity"
+            android:exported="false" />
 
     </application>
 </manifest>
