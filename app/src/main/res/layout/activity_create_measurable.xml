@@ -71,6 +71,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
+                        android:layout_marginTop="4dp"
                         android:text="NAME"
                         android:textColor="#4CAF50"
                         android:textSize="12sp"
@@ -91,7 +92,9 @@
                             android:layout_height="wrap_content"
                             android:hint="e.g. Run"
                             android:textColor="#FFFFFF"
-                            android:textColorHint="#FFFFFF" />
+                            android:textColorHint="#FFFFFF"
+                            android:textCursorDrawable="@null"
+                            />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
@@ -106,6 +109,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
+                        android:layout_marginTop="4dp"
                         android:text="COLOR"
                         android:textColor="#4CAF50"
                         android:textSize="12sp"
@@ -116,7 +120,7 @@
                         android:layout_height="wrap_content"
                         app:cardBackgroundColor="#2A2A2A"
                         app:cardElevation="0dp"
-                        app:strokeColor="#4CAF50"
+                        app:strokeColor="#FFFFFF"
                         app:strokeWidth="1dp"
                         android:layout_marginTop="8dp">
 
@@ -167,7 +171,9 @@
                         android:layout_height="wrap_content"
                         android:hint="e.g. How many miles did you run today?"
                         android:textColor="#FFFFFF"
-                        android:textColorHint="#FFFFFF" />
+                        android:textColorHint="#FFFFFF"
+                        android:textCursorDrawable="@null"
+                        />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -201,7 +207,9 @@
                         android:layout_height="wrap_content"
                         android:hint="e.g. miles"
                         android:textColor="#FFFFFF"
-                        android:textColorHint="#9E9E9E" />
+                        android:textColorHint="#9E9E9E"
+                        android:textCursorDrawable="@null"
+                        />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -246,7 +254,9 @@
                             android:textColor="#FFFFFF"
                             android:textColorHint="#9E9E9E"
                             android:paddingStart="17dp"
-                            android:paddingEnd="8dp"/>
+                            android:paddingEnd="8dp"
+                            android:textCursorDrawable="@null"
+                            />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
@@ -270,7 +280,6 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:boxStrokeColor="#4CAF50"
                         android:textColorHint="#9E9E9E"
                         app:boxBackgroundColor="#2A2A2A">
 <!-- User will either choose 1 of 3 choices: Every day, Every week, Every Month -->
@@ -310,7 +319,6 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:boxStrokeColor="#4CAF50"
                     app:boxBackgroundColor="#2A2A2A">
 <!--                    User will either input two choices, At least, or At most -->
                     <com.google.android.material.button.MaterialButton
@@ -397,7 +405,9 @@
                         android:hint="(Optional)"
                         android:minLines="3"
                         android:textColor="#9E9E9E"
-                        android:textColorHint="#9E9E9E" />
+                        android:textColorHint="#9E9E9E"
+                        android:textCursorDrawable="@null"
+                        />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 

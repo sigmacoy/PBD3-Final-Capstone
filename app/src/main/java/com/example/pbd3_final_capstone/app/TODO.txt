@@ -1,24 +1,16 @@
 TODO:
 
-1. why is there purple color in create routine, the timer pop up alertdialog must be green
-related to save button, not purple.
-Like when click an EditText, it is purple cursoring blinking blinking, it should have been WHITE
-Its the same in create measurable and yesno
-
-2.
+1. Checkmark, i checked May 8, but it checked May 5....
+   (Present day is at the rightmost - CURRENT, FOLLOW THIS STRICTLY)
 
 
-3. Frequency option, alertDialog screen
-- DONE
+2. Display name should not have the unit on it. The unit must be below of the user input number for
+Measurable...
+(must be centered below of the number)
 
 
-4. Checkmark, i checked May 8, but it checked May 5....
-(Present day is at the rightmost - CURRENT, FOLLOW THIS STRICTLY)
+3. Alarm color all white bro, not good, not readable
 
 
-5. When inputting values on Create Routines, the text is not enough,
-the display placeholder however is perfect...
-- DONE
+4.
 
-6. I hate that i need to tap twice for btnFrequency for the screen to appear
-- DONE
