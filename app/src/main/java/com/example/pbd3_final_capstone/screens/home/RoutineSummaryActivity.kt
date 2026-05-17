@@ -83,7 +83,7 @@ class RoutineSummaryActivity : AppCompatActivity() {
         } else {
             unitLabel.visibility = View.GONE
             unitText.visibility = View.GONE
-            targetText.text = "N/A"
+            targetText.text = if (routine!!.targetType == "at_most") "At most" else "At least"
         }
 
         // Frequency

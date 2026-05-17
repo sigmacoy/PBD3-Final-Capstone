@@ -63,21 +63,34 @@ class CreateYesNoActivity : AppCompatActivity() {
         findViewById<ImageView>(R.id.btnBack).setOnClickListener { finish() }
 
         btnReminder.setOnClickListener {
-            val picker = com.google.android.material.timepicker.MaterialTimePicker.Builder()
-                .setTheme(R.style.CustomTimePickerTheme) // <-- Add this line
-                .setHour(reminderHour)
-                .setMinute(reminderMinute)
-                .setTitleText("Select Reminder Time")
-                .setInputMode(com.google.android.material.timepicker.MaterialTimePicker.INPUT_MODE_CLOCK)
-                .build()
+            val dialogView = layoutInflater.inflate(R.layout.dialog_reminder_time, null)
+            val timePicker = dialogView.findViewById<TimePicker>(R.id.timePicker)
+            val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancel)
+            val btnOk = dialogView.findViewById<TextView>(R.id.btnOk)
 
-            picker.addOnPositiveButtonClickListener {
-                reminderHour = picker.hour
-                reminderMinute = picker.minute
-                updateReminderText()
+            // Set initial time
+            timePicker.hour = reminderHour
+            timePicker.minute = reminderMinute
+
+            val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create()
+
+            btnCancel.setOnClickListener {
+                dialog.dismiss()
             }
 
-            picker.show(supportFragmentManager, "time_picker")
+            btnOk.setOnClickListener {
+                reminderHour = timePicker.hour
+                reminderMinute = timePicker.minute
+                updateReminderText()
+                dialog.dismiss()
+            }
+
+            dialog.show()
+
+            // Makes the corners transparent if your root layout has rounded corners
+            dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
         }
 
         btnFrequency.setOnClickListener {
