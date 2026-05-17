@@ -242,8 +242,8 @@ class CreateMeasurableActivity : AppCompatActivity() {
         val target = inputTarget.text.toString().trim()
         val notes = inputNotes.text.toString().trim()
 
-        if (name.isEmpty()) {
-            Toast.makeText(this, "Enter routine name", Toast.LENGTH_SHORT).show()
+        if (name.isEmpty() || unit.isEmpty() || target.isEmpty()) {
+            Toast.makeText(this, "Name, Unit, and Target must be filled", Toast.LENGTH_SHORT).show()
             return
         }
 

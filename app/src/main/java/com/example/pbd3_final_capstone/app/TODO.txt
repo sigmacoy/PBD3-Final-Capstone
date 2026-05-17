@@ -1,4 +1,4 @@
 TODO:
 
 1. Frequency summary, no Custom, it must display even tho its 6 times in 7 days..
-2.
+

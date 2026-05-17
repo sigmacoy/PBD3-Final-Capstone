@@ -15,7 +15,6 @@ import java.util.Locale
 import android.view.View
 import com.google.android.material.button.MaterialButton
 
-
 class CreateYesNoActivity : AppCompatActivity() {
     private lateinit var inputName: EditText
     private lateinit var inputQuestion: EditText
