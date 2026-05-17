@@ -64,6 +64,7 @@ class CreateYesNoActivity : AppCompatActivity() {
 
         btnReminder.setOnClickListener {
             val picker = com.google.android.material.timepicker.MaterialTimePicker.Builder()
+                .setTheme(R.style.CustomTimePickerTheme) // <-- Add this line
                 .setHour(reminderHour)
                 .setMinute(reminderMinute)
                 .setTitleText("Select Reminder Time")
@@ -224,16 +225,29 @@ class CreateYesNoActivity : AppCompatActivity() {
     }
 
     private fun showColorPicker() {
-        val colors = arrayOf("#64B5F6", "#EF5350", "#66BB6A", "#FFA726", "#AB47BC")
-        val colorNames = arrayOf("Blue", "Red", "Green", "Orange", "Purple")
+        val dialogView = layoutInflater.inflate(R.layout.dialog_choose_color, null)
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Select Color")
-            .setItems(colorNames) { _, which ->
-                selectedColor = colors[which]
-                colorPreview.setBackgroundColor(android.graphics.Color.parseColor(selectedColor))
-            }
-            .show()
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        // Helper function to handle color selection
+        fun setColor(colorHex: String) {
+            selectedColor = colorHex
+            colorPreview.setBackgroundColor(android.graphics.Color.parseColor(selectedColor))
+            dialog.dismiss()
+        }
+
+        dialogView.findViewById<Button>(R.id.btnColorBlue).setOnClickListener { setColor("#64B5F6") }
+        dialogView.findViewById<Button>(R.id.btnColorRed).setOnClickListener { setColor("#EF5350") }
+        dialogView.findViewById<Button>(R.id.btnColorGreen).setOnClickListener { setColor("#66BB6A") }
+        dialogView.findViewById<Button>(R.id.btnColorOrange).setOnClickListener { setColor("#FFA726") }
+        dialogView.findViewById<Button>(R.id.btnColorPurple).setOnClickListener { setColor("#AB47BC") }
+
+        dialog.show()
+
+        // Optional: Make dialog corners transparent if you added rounded corners to your root layout
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
     }
 
     private fun loadRoutineData() {

@@ -31,4 +31,14 @@
         <item name="android:numbersTextColor">#FFFFFF</item>
         <item name="android:numbersSelectorColor">#EC5454</item>
     </style>
+
+    <style name="CustomTimePickerTheme" parent="ThemeOverlay.MaterialComponents.TimePicker">
+        <item name="buttonBarPositiveButtonStyle">@style/CustomTimePickerButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/CustomTimePickerButton</item>
+    </style>
+
+    <style name="CustomTimePickerButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
 </resources>
