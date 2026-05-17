@@ -41,4 +41,11 @@
         <item name="android:textColor">@android:color/black</item>
     </style>
 
+    <!-- Use ThemeOverlay so the context layout inflater actually applies it -->
+    <style name="CustomPopupMenuTheme" parent="ThemeOverlay.Material3.Dark">
+        <item name="android:colorBackground">#2A2A2A</item>
+        <item name="colorSurface">#2A2A2A</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
 </resources>

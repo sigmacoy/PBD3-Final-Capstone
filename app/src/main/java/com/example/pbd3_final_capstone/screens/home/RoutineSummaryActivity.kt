@@ -116,10 +116,10 @@ class RoutineSummaryActivity : AppCompatActivity() {
         return when (routine!!.frequencyType) {
             "daily" -> "Every day"
             "every_x_days" -> "Every ${routine!!.frequencyValue1} days"
-            "x_times_week" -> "${routine!!.frequencyValue1} times per week"
-            "x_times_month" -> "${routine!!.frequencyValue1} times per month"
-            "x_times_in_y_days" -> "${routine!!.frequencyValue1} times in ${routine!!.frequencyValue2} days"
-            else -> "Custom"
+            "times_per_week" -> "${routine!!.frequencyValue1} times per week"
+            "times_per_month" -> "${routine!!.frequencyValue1} times per month"
+            "times_in_days" -> "${routine!!.frequencyValue1} times in ${routine!!.frequencyValue2} days"
+            else -> "Every day"
         }
     }
 

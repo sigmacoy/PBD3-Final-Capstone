@@ -106,10 +106,15 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
 
     override fun showSortDialog() {
         val sortButton = findViewById<View>(R.id.btnSort)
-        val popup = PopupMenu(this, sortButton)
+
+        // Force a true dark theme overlay onto the popup context
+        val themedContext = android.view.ContextThemeWrapper(this, R.style.CustomPopupMenuTheme)
+        val popup = androidx.appcompat.widget.PopupMenu(themedContext, sortButton)
+
         popup.menu.add(0, 0, 0, "Sort").isEnabled = false
         popup.menu.add(0, 1, 1, "By name")
         popup.menu.add(0, 2, 2, "By color")
+
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 1 -> presenter.sortRoutines(byName = true)
