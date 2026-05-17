@@ -142,16 +142,30 @@ class RoutineSummaryActivity : AppCompatActivity() {
         }
 
         findViewById<MaterialButton>(R.id.btnDelete).setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("Confirm Deletion")
-                .setMessage("Are you sure to delete '${routine?.name}' routine?")
-                .setPositiveButton("Delete") { _, _ ->
-                    InMemoryDB.routines.removeAll { it.id == routineId }
-                    RoutineRepository.save(this)
-                    finish() // Close activity after deleting
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+            val dialogView = layoutInflater.inflate(R.layout.dialog_delete_confirm, null)
+            val dialogMessage = dialogView.findViewById<TextView>(R.id.dialog_message)
+            val btnCancel = dialogView.findViewById<TextView>(R.id.btnCancel)
+            val btnDeleteConfirm = dialogView.findViewById<TextView>(R.id.btnDeleteConfirm)
+
+            dialogMessage.text = "Are you sure to delete '${routine?.name}' routine?"
+
+            val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create()
+
+            btnCancel.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            btnDeleteConfirm.setOnClickListener {
+                InMemoryDB.routines.removeAll { it.id == routineId }
+                RoutineRepository.save(this)
+                dialog.dismiss()
+                finish() // Close activity after deleting
+            }
+
+            dialog.show()
+            dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
         }
     }
 
