@@ -24,6 +24,7 @@ class CreateYesNoActivity : AppCompatActivity() {
     private lateinit var btnSave: Button
     private lateinit var colorPreview: View
     private lateinit var inputTargetType: MaterialButton
+    private lateinit var headerTitle: TextView
 
     private var reminderHour = 8
     private var reminderMinute = 0
@@ -43,6 +44,7 @@ class CreateYesNoActivity : AppCompatActivity() {
 
         if (intent.getBooleanExtra("edit_mode", false)) {
             editingRoutineId = intent.getLongExtra("routine_id", -1L)
+            headerTitle.text = "Edit Routine"
             loadRoutineData()
         }
     }
@@ -56,6 +58,7 @@ class CreateYesNoActivity : AppCompatActivity() {
         btnSave = findViewById(R.id.btnSave)
         colorPreview = findViewById(R.id.colorPreview)
         inputTargetType = findViewById(R.id.inputTargetType)
+        headerTitle = findViewById(R.id.headerTitle)
     }
 
     private fun setupListeners() {
