@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- layout/dialog_freq_opt_yesno.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -24,7 +25,9 @@
                 android:id="@+id/radio_every_day"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:buttonTint="#BDBDBD" />
+                app:useMaterialThemeColors="false"
+                app:buttonTint="#FFFFFF"
+                android:buttonTint="#FFFFFF" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -46,7 +49,9 @@
                 android:id="@+id/radio_every_x_days"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:buttonTint="#BDBDBD" />
+                app:useMaterialThemeColors="false"
+                app:buttonTint="#FFFFFF"
+                android:buttonTint="#FFFFFF" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -89,7 +94,9 @@
                 android:id="@+id/radio_times_per_week"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:buttonTint="#BDBDBD" />
+                app:useMaterialThemeColors="false"
+                app:buttonTint="#FFFFFF"
+                android:buttonTint="#FFFFFF" />
 
             <EditText
                 android:id="@+id/edit_times_per_week"
@@ -124,7 +131,9 @@
                 android:id="@+id/radio_times_per_month"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:buttonTint="#BDBDBD" />
+                app:useMaterialThemeColors="false"
+                app:buttonTint="#FFFFFF"
+                android:buttonTint="#FFFFFF" />
 
             <EditText
                 android:id="@+id/edit_times_per_month"
@@ -159,7 +168,9 @@
                 android:id="@+id/radio_times_in_days"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:buttonTint="#BDBDBD"/>
+                app:useMaterialThemeColors="false"
+                app:buttonTint="#FFFFFF"
+                android:buttonTint="#FFFFFF"/>
 
             <EditText
                 android:id="@+id/edit_times_in_days_x"
