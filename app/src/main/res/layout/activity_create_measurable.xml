@@ -364,7 +364,7 @@
                         android:id="@+id/btnReminder"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
-                        android:text="Off"
+                        android:text="8:00 AM"
                         android:textSize="16sp"
                         android:textColor="#FFFFFF"
                         app:strokeColor="#4CAF50"

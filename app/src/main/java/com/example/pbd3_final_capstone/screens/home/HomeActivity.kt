@@ -120,6 +120,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
                 1 -> presenter.sortRoutines(byName = true)
                 2 -> presenter.sortRoutines(byName = false)
             }
+            presenter.loadRoutines() // Force immediate refresh pass using the new sort order
             true
         }
         popup.show()
