@@ -8,8 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.example.pbd3_final_capstone.data.RoutineRepository
-import com.example.pbd3_final_capstone.screens.home.InMemoryDB
+import com.example.pbd3_final_capstone.data.repository.RoutineRepository
+import com.example.pbd3_final_capstone.data.repository.RoutineRepositoryImpl
+import com.example.pbd3_final_capstone.data.model.InMemoryDB
 
 /**
  * Shown after the user picks Checkmark or History widget type.
@@ -37,7 +38,8 @@ import com.example.pbd3_final_capstone.screens.home.InMemoryDB
         if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) { finish(); return }
 
         // Load persisted routines
-        RoutineRepository.load(this)
+        val repository = RoutineRepositoryImpl()
+        repository.load(this)
 
         val routines = InMemoryDB.routines
         if (routines.isEmpty()) {

@@ -7,17 +7,18 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
-import android.widget.PopupMenu
-import android.widget.TableLayout
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.pbd3_final_capstone.R
-import com.example.pbd3_final_capstone.data.RoutineRepository
+import com.example.pbd3_final_capstone.data.repository.RoutineRepositoryImpl
+import com.example.pbd3_final_capstone.screens.create_routine.CreateMeasurableActivity
+import com.example.pbd3_final_capstone.screens.create_routine.CreateYesNoActivity
+import com.example.pbd3_final_capstone.screens.summary.RoutineSummaryActivity
 import com.example.pbd3_final_capstone.utils.ReminderScheduler
 import com.example.pbd3_final_capstone.widget.CheckmarkWidget
+import com.example.pbd3_final_capstone.widget.WidgetUpdater
 import com.google.android.material.bottomsheet.BottomSheetDialog
-
+import com.example.pbd3_final_capstone.data.model.Routine
 class HomeActivity : AppCompatActivity(), HomeContract.View {
 
     private lateinit var presenter: HomePresenter
@@ -57,9 +58,7 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
 
     private fun requestNotificationPermission() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
-                != android.content.pm.PackageManager.PERMISSION_GRANTED
-            ) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
             }
         }
@@ -78,7 +77,9 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
 
     override fun onPause() {
         super.onPause()
-        RoutineRepository.save(this)
+        // Use the Impl class here instead of the static interface
+        val repository = RoutineRepositoryImpl()
+        repository.save(this)
         unregisterReceiver(widgetRefreshReceiver)
     }
 
@@ -100,27 +101,26 @@ class HomeActivity : AppCompatActivity(), HomeContract.View {
         dialog.show()
     }
 
-    override fun showCreateDialog(isMeasurable: Boolean) {
-        // This method is kept for contract but not used
-    }
+    override fun showCreateDialog(isMeasurable: Boolean) {}
 
     override fun showSortDialog() {
         val sortButton = findViewById<View>(R.id.btnSort)
-
-        // Force a true dark theme overlay onto the popup context
         val themedContext = android.view.ContextThemeWrapper(this, R.style.CustomPopupMenuTheme)
         val popup = androidx.appcompat.widget.PopupMenu(themedContext, sortButton)
 
-        popup.menu.add(0, 0, 0, "Sort").isEnabled = false
-        popup.menu.add(0, 1, 1, "By name")
-        popup.menu.add(0, 2, 2, "By color")
+        popup.menu.add(0, 0, 0, "Sort Increasing").isEnabled = false
+
+        val nameArrow = if (presenter.isSortedByName) " ↓" else ""
+        val colorArrow = if (presenter.isSortedByColor) " ↓" else ""
+
+        popup.menu.add(0, 1, 1, "By name$nameArrow")
+        popup.menu.add(0, 2, 2, "By color$colorArrow")
 
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 1 -> presenter.sortRoutines(byName = true)
                 2 -> presenter.sortRoutines(byName = false)
             }
-            presenter.loadRoutines() // Force immediate refresh pass using the new sort order
             true
         }
         popup.show()

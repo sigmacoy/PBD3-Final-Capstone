@@ -1,10 +1,8 @@
-package com.example.pbd3_final_capstone.screens.home
+package com.example.pbd3_final_capstone.widget
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
-import com.example.pbd3_final_capstone.widget.CheckmarkWidget
-import com.example.pbd3_final_capstone.widget.HistoryWidget
 
 object WidgetUpdater {
     fun updateAllWidgets(context: Context) {

@@ -1,5 +1,7 @@
 package com.example.pbd3_final_capstone.screens.home
 
+import com.example.pbd3_final_capstone.data.model.Routine
+
 interface HomeContract {
     interface View {
         fun showTypeDialog()

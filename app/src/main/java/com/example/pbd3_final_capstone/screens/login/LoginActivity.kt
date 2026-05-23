@@ -17,19 +17,25 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
     private lateinit var presenter: LoginPresenter
     private lateinit var textviewError: TextView
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
         textviewError = findViewById(R.id.textviewError)
-        presenter = LoginPresenter(this, LoginModel(), app())
+
+        // Initialize only once, passing app() to LoginModel
+        presenter = LoginPresenter(this, LoginModel(app()), app())
 
         getButtonView(R.id.buttonLogin).setOnClickListener {
             val username = getEditTextValue(R.id.edittextUsername)
             val password = getEditTextValue(R.id.edittextPassword)
             presenter.onLoginClicked(username, password)
+        }
+
+        // Handle the register click
+        findViewById<TextView>(R.id.textviewGoToRegister).setOnClickListener {
+            start(com.example.pbd3_final_capstone.screens.register.RegisterActivity::class.java)
+            finish() // Optional: Removes LoginActivity from the back stack so pressing back doesn't return here
         }
     }
 

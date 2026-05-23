@@ -14,8 +14,7 @@ import android.graphics.RectF
 import android.view.View
 import android.widget.RemoteViews
 import com.example.pbd3_final_capstone.R
-import com.example.pbd3_final_capstone.data.RoutineRepository
-import java.util.Calendar
+import com.example.pbd3_final_capstone.data.repository.RoutineRepositoryImpl
 
 class CheckmarkWidget : AppWidgetProvider() {
 
@@ -32,7 +31,8 @@ class CheckmarkWidget : AppWidgetProvider() {
         fun refreshAll(context: Context) {
             val mgr = AppWidgetManager.getInstance(context)
             val ids = mgr.getAppWidgetIds(ComponentName(context, CheckmarkWidget::class.java))
-            RoutineRepository.load(context)
+            val repository = RoutineRepositoryImpl()
+            repository.load(context)
             ids.forEach { updateWidget(context, mgr, it) }
         }
 
@@ -48,8 +48,9 @@ class CheckmarkWidget : AppWidgetProvider() {
             }
 
             val routineName = binding.removePrefix("checkmark:")
-            RoutineRepository.load(context)
-            val routine = RoutineRepository.getByName(routineName)
+            val repository = RoutineRepositoryImpl()
+            repository.load(context)
+            val routine = repository.getByName(routineName)
 
             if (routine == null) {
                 views.setTextViewText(R.id.widget_checkmark_label, "DB Error")
@@ -135,13 +136,16 @@ class CheckmarkWidget : AppWidgetProvider() {
 
         if (intent.action == ACTION_TOGGLE) {
             val routineName = intent.getStringExtra(EXTRA_ROUTINE_NAME) ?: return
-            RoutineRepository.load(context)
-            val routine = RoutineRepository.getByName(routineName) ?: return
+
+            val repository = RoutineRepositoryImpl()
+            repository.load(context)
+            val routine = repository.getByName(routineName) ?: return
 
             // Index 3 = today
             val todayIndex = 3
             routine.checkStates[todayIndex] = !routine.checkStates[todayIndex]
-            RoutineRepository.save(context)
+
+            repository.save(context)
 
             val mgr = AppWidgetManager.getInstance(context)
 
@@ -164,7 +168,8 @@ class CheckmarkWidget : AppWidgetProvider() {
     }
 
     override fun onUpdate(context: Context, mgr: AppWidgetManager, ids: IntArray) {
-        RoutineRepository.load(context)
+        val repository = RoutineRepositoryImpl()
+        repository.load(context)
         ids.forEach { updateWidget(context, mgr, it) }
     }
 

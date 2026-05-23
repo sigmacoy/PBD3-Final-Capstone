@@ -6,7 +6,7 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
 
-        <item name="android:statusBarColor">#82EC54</item>
+        <item name="android:statusBarColor">#D3D3D3</item>
         <item name="colorPrimary">#FFFFFF</item>
         <item name="colorPrimaryVariant">#FFFFFF</item>
         <item name="colorSecondary">#FFFFFF</item>

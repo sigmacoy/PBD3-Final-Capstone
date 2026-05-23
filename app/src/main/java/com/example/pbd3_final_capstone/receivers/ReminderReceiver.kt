@@ -1,11 +1,13 @@
-package com.example.pbd3_final_capstone.utils
+package com.example.pbd3_final_capstone.receivers
 
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
-import com.example.pbd3_final_capstone.data.RoutineRepository
+import com.example.pbd3_final_capstone.data.repository.RoutineRepository
+import com.example.pbd3_final_capstone.data.repository.RoutineRepositoryImpl
+import com.example.pbd3_final_capstone.utils.ReminderScheduler
 
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -23,8 +25,9 @@ class ReminderReceiver : BroadcastReceiver() {
         nm.notify(name.hashCode(), notification)
 
         // Reschedule for tomorrow
-        RoutineRepository.load(context)
-        val routine = RoutineRepository.getByName(name) ?: return
+        val repository = RoutineRepositoryImpl()
+        repository.load(context)
+        val routine = repository.getByName(name) ?: return
         ReminderScheduler.scheduleReminder(context, routine)
     }
 }

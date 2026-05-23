@@ -15,15 +15,17 @@
         android:roundIcon="@mipmap/my_routine_logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.PBD3FinalCapstone"
-        tools:targetApi="31"
-        >
+        tools:targetApi="31">
 
-        <activity android:name=".screens.home.HomeActivity" android:exported="true">
+        <activity android:name=".screens.login.LoginActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".screens.home.HomeActivity" android:exported="false" />
+        <activity android:name=".screens.register.RegisterActivity" android:exported="false" />
 
         <!-- ── Checkmark Widget ──────────────────────────────────────────── -->
         <receiver
@@ -74,21 +76,18 @@
 
         <!-- ── Alarm Receivers ───────────────────────────────────────────── -->
         <receiver
-            android:name=".utils.ReminderReceiver"
+            android:name=".receivers.ReminderReceiver"
             android:exported="false" />
 
         <receiver
-            android:name=".utils.MidnightResetReceiver"
+            android:name=".receivers.MidnightResetReceiver"
             android:exported="false" />
 
-<!--        Go straight directly to the home menu, for quick debug only.... -->
-<!--        <activity android:name=".screens.home.HomeActivity" android:exported="false" />-->
-
-        <activity android:name=".screens.home.CreateMeasurableActivity" />
-        <activity android:name=".screens.home.CreateYesNoActivity" />
+        <activity android:name=".screens.create_routine.CreateMeasurableActivity" />
+        <activity android:name=".screens.create_routine.CreateYesNoActivity" />
 
         <activity
-            android:name=".screens.home.RoutineSummaryActivity"
+            android:name=".screens.summary.RoutineSummaryActivity"
             android:exported="false" />
 
     </application>

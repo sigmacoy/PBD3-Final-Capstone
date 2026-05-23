@@ -8,7 +8,9 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.pbd3_final_capstone.R
-import com.example.pbd3_final_capstone.data.RoutineRepository
+import com.example.pbd3_final_capstone.data.model.Routine
+import com.example.pbd3_final_capstone.data.repository.RoutineRepositoryImpl
+import com.example.pbd3_final_capstone.utils.ColorHelper
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -45,6 +47,9 @@ class RoutineTableAdapter(
         scrollContainer.visibility = View.VISIBLE
         addHeaderRow()
         routines.forEach { addDataRow(it) }
+
+        tableRoutines.requestLayout()
+        tableRoutines.invalidate()
     }
 
     private fun addHeaderRow() {
@@ -53,56 +58,42 @@ class RoutineTableAdapter(
         val days = mutableListOf<Pair<String, String>>()
         val calendar = Calendar.getInstance()
 
-        // Start from today, go backwards
         for (i in 0..3) {
-            days.add(
-                Pair(
-                    dayFormat.format(calendar.time).uppercase(),
-                    dateFormat.format(calendar.time)
-                )
-            )
-            calendar.add(Calendar.DAY_OF_YEAR, -1)  // Move backwards
+            days.add(Pair(dayFormat.format(calendar.time).uppercase(), dateFormat.format(calendar.time)))
+            calendar.add(Calendar.DAY_OF_YEAR, -1)
         }
-        days.reverse()  // Reverse to show oldest to newest left to right
+        days.reverse()
 
         val headerRow = TableRow(activity).apply { setPadding(0, 0, 0, 0) }
-        headerRow.addView(
-            TextView(activity).apply {
-                layoutParams = TableRow.LayoutParams(nameWidth, cellSize)
-                setPadding(0, 0, 0, 0)
-            }
-        )
+        headerRow.addView(TextView(activity).apply {
+            layoutParams = TableRow.LayoutParams(nameWidth, cellSize)
+            setPadding(0, 0, 0, 0)
+        })
 
         days.forEach { (dayText, dateText) ->
             val cell = LinearLayout(activity).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER
-                layoutParams = TableRow.LayoutParams(cellSize, cellSize).apply {
-                    setMargins(0, 0, 0, 0)
-                }
+                layoutParams = TableRow.LayoutParams(cellSize, cellSize).apply { setMargins(0, 0, 0, 0) }
                 setPadding(0, 0, 0, 0)
             }
 
-            cell.addView(
-                TextView(activity).apply {
-                    text = dayText
-                    textSize = 13f
-                    gravity = Gravity.CENTER
-                    setTextColor(Color.LTGRAY)
-                    setPadding(0, 0, 0, 0)
-                }
-            )
+            cell.addView(TextView(activity).apply {
+                text = dayText
+                textSize = 13f
+                gravity = Gravity.CENTER
+                setTextColor(Color.LTGRAY)
+                setPadding(0, 0, 0, 0)
+            })
 
-            cell.addView(
-                TextView(activity).apply {
-                    text = dateText
-                    textSize = 16f
-                    gravity = Gravity.CENTER
-                    setTypeface(null, android.graphics.Typeface.BOLD)
-                    setTextColor(Color.WHITE)
-                    setPadding(0, 0, 0, 0)
-                }
-            )
+            cell.addView(TextView(activity).apply {
+                text = dateText
+                textSize = 16f
+                gravity = Gravity.CENTER
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(Color.WHITE)
+                setPadding(0, 0, 0, 0)
+            })
 
             headerRow.addView(cell)
         }
@@ -117,9 +108,7 @@ class RoutineTableAdapter(
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
             setPadding(8, 0, 4, 0)
-            layoutParams = TableRow.LayoutParams(nameWidth, cellSize).apply {
-                setMargins(0, 0, 0, 0)
-            }
+            layoutParams = TableRow.LayoutParams(nameWidth, cellSize).apply { setMargins(0, 0, 0, 0) }
         }
 
         val nameText = TextView(activity).apply {
@@ -154,12 +143,7 @@ class RoutineTableAdapter(
         tableRoutines.addView(row)
     }
 
-    private fun addMeasurableCell(
-        row: TableRow,
-        routine: Routine,
-        index: Int,
-        resolvedColor: Int
-    ) {
+    private fun addMeasurableCell(row: TableRow, routine: Routine, index: Int, resolvedColor: Int) {
         val targetVal = routine.target.toIntOrNull() ?: 1
         val currentVal = routine.inputValues[index].toIntOrNull() ?: 0
 
@@ -171,16 +155,13 @@ class RoutineTableAdapter(
             setHintTextColor(Color.DKGRAY)
             gravity = Gravity.CENTER
             textSize = 18f
-            inputType = android.text.InputType.TYPE_CLASS_NUMBER or
-                    android.text.InputType.TYPE_NUMBER_FLAG_SIGNED
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_SIGNED
             minWidth = 0
             minimumWidth = 0
             setPadding(0, 0, 0, 0)
             includeFontPadding = false
             background = null
-            layoutParams = TableRow.LayoutParams(cellSize, cellSize).apply {
-                setMargins(0, 0, 0, 0)
-            }
+            layoutParams = TableRow.LayoutParams(cellSize, cellSize).apply { setMargins(0, 0, 0, 0) }
         }
 
         input.addTextChangedListener(object : TextWatcher {
@@ -191,7 +172,7 @@ class RoutineTableAdapter(
                 routine.inputValues[index] = value
                 val newVal = value.toIntOrNull() ?: 0
                 input.setTextColor(if (newVal >= targetVal) resolvedColor else Color.DKGRAY)
-                RoutineRepository.save(activity)
+                RoutineRepositoryImpl().save(activity)
                 onDataChanged()
             }
         })
@@ -199,18 +180,11 @@ class RoutineTableAdapter(
         row.addView(input)
     }
 
-    private fun addYesNoCell(
-        row: TableRow,
-        routine: Routine,
-        index: Int,
-        resolvedColor: Int
-    ) {
+    private fun addYesNoCell(row: TableRow, routine: Routine, index: Int, resolvedColor: Int) {
         val container = LinearLayout(activity).apply {
             gravity = Gravity.CENTER
             setPadding(0, 0, 0, 0)
-            layoutParams = TableRow.LayoutParams(cellSize, cellSize).apply {
-                setMargins(0, 0, 0, 0)
-            }
+            layoutParams = TableRow.LayoutParams(cellSize, cellSize).apply { setMargins(0, 0, 0, 0) }
         }
 
         val checkBox = CheckBox(activity).apply {
@@ -219,17 +193,14 @@ class RoutineTableAdapter(
             minWidth = 0
             minimumWidth = 0
             buttonTintList = android.content.res.ColorStateList(
-                arrayOf(
-                    intArrayOf(-android.R.attr.state_checked),
-                    intArrayOf(android.R.attr.state_checked)
-                ),
+                arrayOf(intArrayOf(-android.R.attr.state_checked), intArrayOf(android.R.attr.state_checked)),
                 intArrayOf(Color.DKGRAY, resolvedColor)
             )
         }
 
         checkBox.setOnCheckedChangeListener { _, isChecked ->
             routine.checkStates[index] = isChecked
-            RoutineRepository.save(activity)
+            RoutineRepositoryImpl().save(activity)
             onDataChanged()
         }
 

@@ -4,13 +4,12 @@ import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import androidx.core.app.NotificationCompat
-import com.example.pbd3_final_capstone.data.RoutineRepository
-import com.example.pbd3_final_capstone.screens.home.Routine
+import com.example.pbd3_final_capstone.receivers.MidnightResetReceiver
+import com.example.pbd3_final_capstone.receivers.ReminderReceiver
+import com.example.pbd3_final_capstone.data.model.Routine
 import java.util.Calendar
 
 object ReminderScheduler {

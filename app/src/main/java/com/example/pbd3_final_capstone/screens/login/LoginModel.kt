@@ -1,12 +1,21 @@
 package com.example.pbd3_final_capstone.screens.login
 
-class LoginModel {
+import com.example.pbd3_final_capstone.app.MyRoutineApp
+
+class LoginModel(private val app: MyRoutineApp) {
     fun validate(username: String, password: String): ValidationResult {
         val trimmedUser = username.trim()
+
+        // Retrieve the registered credentials
+        val registeredUser = app.getRegisteredUsername()
+        val registeredPass = app.getRegisteredPassword()
+
         return when {
             trimmedUser.isBlank() -> ValidationResult.Error("Name cannot be empty.")
             password.isBlank() -> ValidationResult.Error("Password cannot be empty.")
-            password.length < 4 -> ValidationResult.Error("Password is too short.")
+            // Compare input with registered credentials
+            trimmedUser != registeredUser || password != registeredPass ->
+                ValidationResult.Error("Invalid username or password.")
             else -> ValidationResult.Success(trimmedUser)
         }
     }

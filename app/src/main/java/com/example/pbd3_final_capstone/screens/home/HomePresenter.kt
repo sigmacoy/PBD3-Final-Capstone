@@ -1,7 +1,10 @@
 package com.example.pbd3_final_capstone.screens.home
 
 import android.content.Context
-import com.example.pbd3_final_capstone.data.RoutineRepository
+import com.example.pbd3_final_capstone.data.model.InMemoryDB
+import com.example.pbd3_final_capstone.data.model.Routine
+import com.example.pbd3_final_capstone.data.repository.RoutineRepository
+import com.example.pbd3_final_capstone.data.repository.RoutineRepositoryImpl
 import com.example.pbd3_final_capstone.utils.ReminderScheduler
 
 class HomePresenter(
@@ -9,34 +12,35 @@ class HomePresenter(
     private val context: Context
 ) : HomeContract.Presenter {
 
-    private var isSortedByName  = false
-    private var isSortedByColor = false
+    private val repository: RoutineRepository = RoutineRepositoryImpl()
+    var isSortedByName  = false
+    var isSortedByColor = false
 
     override fun loadRoutines() {
-        RoutineRepository.load(context)
+        repository.load(context)
         view.refreshTable(InMemoryDB.routines)
     }
 
     override fun addRoutine(routine: Routine) {
         InMemoryDB.routines.add(routine)
-        RoutineRepository.save(context)
+        repository.save(context)
         ReminderScheduler.scheduleReminder(context, routine)
         view.refreshTable(InMemoryDB.routines)
     }
 
     override fun sortRoutines(byName: Boolean) {
-        // Persist current UI state before sorting
-        RoutineRepository.save(context)
-
         if (byName) {
-            isSortedByName = !isSortedByName
-            if (isSortedByName) InMemoryDB.routines.sortBy { it.name.lowercase() }
-            else                InMemoryDB.routines.sortByDescending { it.name.lowercase() }
+            isSortedByColor = false
+            isSortedByName = true
+            InMemoryDB.routines.sortBy { it.name.lowercase() }
         } else {
-            isSortedByColor = !isSortedByColor
-            if (isSortedByColor) InMemoryDB.routines.sortBy { it.color }
-            else                 InMemoryDB.routines.sortByDescending { it.color }
+            isSortedByName = false
+            isSortedByColor = true
+            InMemoryDB.routines.sortBy { it.color }
         }
-        view.refreshTable(InMemoryDB.routines)
+
+        // Move save down here so it saves the SORTED list!
+        repository.save(context)
+        view.refreshTable(InMemoryDB.routines.toList())
     }
 }

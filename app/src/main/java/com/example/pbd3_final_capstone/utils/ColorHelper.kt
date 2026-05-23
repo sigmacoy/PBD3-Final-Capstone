@@ -1,4 +1,4 @@
-package com.example.pbd3_final_capstone.screens.home
+package com.example.pbd3_final_capstone.utils
 
 import android.graphics.Color
 
