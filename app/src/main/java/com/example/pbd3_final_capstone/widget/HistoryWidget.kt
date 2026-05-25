@@ -57,7 +57,6 @@ class HistoryWidget : AppWidgetProvider() {
             views.setImageViewBitmap(R.id.widget_history_canvas, bitmap)
             views.setTextViewText(R.id.widget_history_label, routine.name)
 
-            // Add click listener to open the app
             val launchIntent = Intent(context, com.example.pbd3_final_capstone.screens.home.HomeActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 putExtra("FOCUS_ROUTINE", routine.name)
@@ -104,7 +103,6 @@ class HistoryWidget : AppWidgetProvider() {
                 color = Color.WHITE; textSize = 28f; textAlign = Paint.Align.CENTER
             }
 
-
             val filledPaint  = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = accentColor }
             val emptyPaint   = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#3A3A3A") }
             val todayRingPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -118,10 +116,10 @@ class HistoryWidget : AppWidgetProvider() {
             val checkedDates = mutableSetOf<String>()
             for (offset in 0..3) {
                 val isDone = if (routine.isMeasurable) {
-                    val currentCount = routine.inputValues[offset].toIntOrNull() ?: 0
+                    val currentCount = routine.inputValues.getOrElse(offset) { "0" }.toIntOrNull() ?: 0
                     val target = routine.target.toIntOrNull() ?: 1
                     currentCount >= target
-                } else routine.checkStates[offset]
+                } else routine.checkStates.getOrElse(offset) { false }
 
                 if (isDone) {
                     val cal = Calendar.getInstance()
@@ -176,7 +174,6 @@ class HistoryWidget : AppWidgetProvider() {
                     val rect = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
 
                     canvas.drawRoundRect(rect, 8f, 8f, if (isChecked) filledPaint else emptyPaint)
-
                     if (isToday) canvas.drawRoundRect(rect, 8f, 8f, todayRingPaint)
 
                     datePaint.color = if (isChecked) Color.WHITE else Color.GRAY

@@ -15,9 +15,8 @@ import java.util.Calendar
 object ReminderScheduler {
 
     private const val CHANNEL_ID    = "routine_reminders"
-    private const val MIDNIGHT_CODE = 99999   // unique request code for midnight reset
+    private const val MIDNIGHT_CODE = 99999
 
-    // ── Schedule a daily reminder notification for one routine ──────────────
     fun scheduleReminder(context: Context, routine: Routine) {
         val am     = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, ReminderReceiver::class.java).apply {
@@ -37,16 +36,18 @@ object ReminderScheduler {
             if (before(Calendar.getInstance())) add(Calendar.DAY_OF_YEAR, 1)
         }
 
-        // On Android 12+ use setExactAndAllowWhileIdle for reliable delivery
-        // setRepeating is inexact on modern Android — reschedule in the receiver instead
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && am.canScheduleExactAlarms()) {
-            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pi)
-        } else {
-            am.setRepeating(AlarmManager.RTC_WAKEUP, cal.timeInMillis, AlarmManager.INTERVAL_DAY, pi)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && am.canScheduleExactAlarms()) {
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pi)
+            } else {
+                am.setRepeating(AlarmManager.RTC_WAKEUP, cal.timeInMillis, AlarmManager.INTERVAL_DAY, pi)
+            }
+        } catch (e: SecurityException) {
+            // Fallback if Android 14+ user revoked exact alarm permission
+            am.set(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pi)
         }
     }
 
-    // ── Cancel a reminder ───────────────────────────────────────────────────
     fun cancelReminder(context: Context, routine: Routine) {
         val am     = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, ReminderReceiver::class.java)
@@ -59,7 +60,6 @@ object ReminderScheduler {
         am.cancel(pi)
     }
 
-    // ── Schedule midnight reset (resets all today checkStates to false) ─────
     fun scheduleMidnightReset(context: Context) {
         val am     = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, MidnightResetReceiver::class.java)
@@ -74,13 +74,12 @@ object ReminderScheduler {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE,      0)
             set(Calendar.SECOND,      0)
-            add(Calendar.DAY_OF_YEAR, 1)   // next midnight
+            add(Calendar.DAY_OF_YEAR, 1)
         }
 
         am.setRepeating(AlarmManager.RTC_WAKEUP, midnight.timeInMillis, AlarmManager.INTERVAL_DAY, pi)
     }
 
-    // ── Create notification channel (call once on app start) ────────────────
     fun createChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(

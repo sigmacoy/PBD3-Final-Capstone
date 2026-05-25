@@ -145,11 +145,11 @@ class RoutineTableAdapter(
 
     private fun addMeasurableCell(row: TableRow, routine: Routine, index: Int, resolvedColor: Int) {
         val targetVal = routine.target.toIntOrNull() ?: 1
-        val currentVal = routine.inputValues[index].toIntOrNull() ?: 0
+        val currentVal = routine.inputValues.getOrElse(index) { "0" }.toIntOrNull() ?: 0
 
         val input = EditText(activity).apply {
             hint = "0"
-            setText(routine.inputValues[index])
+            setText(routine.inputValues.getOrElse(index) { "" })
             setSelection(text.length)
             setTextColor(if (currentVal >= targetVal) resolvedColor else Color.DKGRAY)
             setHintTextColor(Color.DKGRAY)
@@ -169,7 +169,14 @@ class RoutineTableAdapter(
             override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) = Unit
             override fun afterTextChanged(s: Editable?) {
                 val value = s?.toString() ?: ""
-                routine.inputValues[index] = value
+
+                // Safely add or update the value
+                if (index < routine.inputValues.size) {
+                    routine.inputValues[index] = value
+                } else {
+                    routine.inputValues.add(value)
+                }
+
                 val newVal = value.toIntOrNull() ?: 0
                 input.setTextColor(if (newVal >= targetVal) resolvedColor else Color.DKGRAY)
                 RoutineRepositoryImpl().save(activity)
@@ -188,7 +195,7 @@ class RoutineTableAdapter(
         }
 
         val checkBox = CheckBox(activity).apply {
-            isChecked = routine.checkStates[index]
+            isChecked = routine.checkStates.getOrElse(index) { false }
             setPadding(0, 0, 0, 0)
             minWidth = 0
             minimumWidth = 0
@@ -199,7 +206,11 @@ class RoutineTableAdapter(
         }
 
         checkBox.setOnCheckedChangeListener { _, isChecked ->
-            routine.checkStates[index] = isChecked
+            if (index < routine.checkStates.size) {
+                routine.checkStates[index] = isChecked
+            } else {
+                routine.checkStates.add(isChecked)
+            }
             RoutineRepositoryImpl().save(activity)
             onDataChanged()
         }

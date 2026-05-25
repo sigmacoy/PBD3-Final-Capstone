@@ -65,7 +65,7 @@ class CheckmarkWidget : AppWidgetProvider() {
             val todayIndex = 3
 
             if (routine.isMeasurable) {
-                val currentCount = routine.inputValues[todayIndex].toIntOrNull() ?: 0
+                val currentCount = routine.inputValues.getOrElse(todayIndex) { "0" }.toIntOrNull() ?: 0
                 val target = routine.target.toIntOrNull() ?: 1
                 val achieved = currentCount >= target
 
@@ -88,7 +88,7 @@ class CheckmarkWidget : AppWidgetProvider() {
                 views.setOnClickPendingIntent(R.id.widget_checkmark_label, pi)
 
             } else {
-                val checked = routine.checkStates[todayIndex]
+                val checked = routine.checkStates.getOrElse(todayIndex) { false }
                 views.setInt(R.id.widget_checkmark_root, "setBackgroundColor", if (checked) resolvedColor else Color.parseColor("#2A2A2A"))
                 views.setViewVisibility(R.id.widget_checkmark_icon, View.VISIBLE)
                 views.setViewVisibility(R.id.widget_checkmark_count, View.GONE)
@@ -141,25 +141,13 @@ class CheckmarkWidget : AppWidgetProvider() {
             repository.load(context)
             val routine = repository.getByName(routineName) ?: return
 
-            // Index 3 = today
             val todayIndex = 3
-            routine.checkStates[todayIndex] = !routine.checkStates[todayIndex]
-
-            repository.save(context)
-
-            val mgr = AppWidgetManager.getInstance(context)
-
-            val checkmarkIds = mgr.getAppWidgetIds(ComponentName(context, CheckmarkWidget::class.java))
-            checkmarkIds.forEach { id -> updateWidget(context, mgr, id) }
-
-            val historyIds = mgr.getAppWidgetIds(ComponentName(context, HistoryWidget::class.java))
-            if (historyIds.isNotEmpty()) {
-                val historyUpdateIntent = Intent(context, HistoryWidget::class.java).apply {
-                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, historyIds)
-                }
-                context.sendBroadcast(historyUpdateIntent)
+            if (todayIndex < routine.checkStates.size) {
+                routine.checkStates[todayIndex] = !routine.checkStates[todayIndex]
+                repository.save(context)
             }
+
+            WidgetUpdater.updateAllWidgets(context)
 
             context.sendBroadcast(Intent(ACTION_HOME_REFRESH).apply {
                 setPackage(context.packageName)
