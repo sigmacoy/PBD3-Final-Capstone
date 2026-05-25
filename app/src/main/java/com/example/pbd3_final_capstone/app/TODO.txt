@@ -1,4 +1,3 @@
 TODO:
 
-1. off, ui, reminder
-2. i pressed sort by name/color, first click did not sort...
+1.
